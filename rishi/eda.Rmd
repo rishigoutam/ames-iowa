@@ -27,12 +27,14 @@ ncol(housing)
 head(housing)
 ```
 
+Basic Statistics
+
 ``` {r summary}
 summary(housing)
 ```
 
 
-
+Frequency Distribution
 
 ```{r feature-groups}
 
@@ -63,5 +65,19 @@ hist.data.frame(housing[numerical.cols], freq = TRUE, na.big = TRUE, rugs = FALS
 # n: number of values, m: number of missing values
 ```
 
+```{r scatterplots, echo=FALSE}
+# Scatterplots of the numerical columsn vs target
 
+# https://stackoverflow.com/questions/24648729/plot-one-numeric-variable-against-n-numeric-variables-in-n-plots
+library(reshape2)
+
+numerics_plus_SalePrice <- housing %>%
+  select(c("SalePrice", numerical.cols))
+housing.numerics.vs.SalePrice <- melt(numerics_plus_SalePrice, "SalePrice")
+
+housing.numerics.vs.SalePrice %>%
+  ggplot(aes(value, SalePrice)) +
+  geom_point() +
+  facet_wrap(~variable, scales = "free")
+```
 
