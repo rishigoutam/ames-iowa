@@ -24,6 +24,7 @@ sapply(housing, class)
 colnames(housing)
 nrow(housing)
 ncol(housing)
+# 82 features and 2580 observations
 head(housing)
 ```
 
@@ -75,9 +76,10 @@ From above,
 * GarageArea missing 1
 
 Can we impute values in any logical manner? Can we safely drop non-imputable values?
-
 What about non-numeric values?
 
+
+Missing values
 TODO impute missing values
 
 ```{r impute-missing-values}
