@@ -184,3 +184,6 @@ ames-iowa.Rproj
 
 # IntelliJ
 .idea/*
+
+# Additional Files
+data/Ames_Housing_Price_Data.xlsx
