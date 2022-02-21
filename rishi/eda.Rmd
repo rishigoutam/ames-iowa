@@ -65,6 +65,23 @@ hist.data.frame(housing[numerical.cols], freq = TRUE, na.big = TRUE, rugs = FALS
 # n: number of values, m: number of missing values
 ```
 
+From above, 
+* LotFrontage missing 462
+* MasVnrArea missing 14
+* BsmtFinSF1 missing 1
+* BsmtFinSF2 missing 1
+* TotalBsmtSF missing 1
+* GarageYrBlt missing 129
+* GarageArea missing 1
+
+Can we impute values in any logical manner? Can we safely drop non-imputable values?
+
+What about non-numeric values?
+
+```{r impute-missing-values}
+# TODO
+```
+
 ```{r scatterplots, echo=FALSE}
 # Scatterplots of the numerical columsn vs target
 
@@ -79,5 +96,9 @@ housing.numerics.vs.SalePrice %>%
   ggplot(aes(value, SalePrice)) +
   geom_point() +
   facet_wrap(~variable, scales = "free")
+```
+
+```{r SalePrice-distribution}
+
 ```
 
