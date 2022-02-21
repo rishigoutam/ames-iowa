@@ -148,7 +148,19 @@ TODO Check for multicolinearity by looking at R^2 matrix. Need to remove NAs I t
 ```{r correlation-matrix}
 # See: https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html
 library(corrplot)
-housing.cors <- cor(housing[numerical.cols])
+housing.cors <- round(cor(housing[numerical.cols]), 2)
 corrplot(housing.cors)
+
+# See: http://www.sthda.com/english/wiki/ggplot2-quick-correlation-matrix-heatmap-r-software-and-data-visualization
+housing.cors.melted <- melt(housing.cors)
+housing.cors.melted %>%
+  ggplot(aes(x=Var1, y=Var2, fill=value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0, 
+                       limit = c(-1,1), space = "Lab", name="Pearson\nCorrelation") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1)) +
+  coord_fixed()
+
 ```
 
