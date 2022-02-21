@@ -78,9 +78,18 @@ Can we impute values in any logical manner? Can we safely drop non-imputable val
 
 What about non-numeric values?
 
+TODO impute missing values
+
 ```{r impute-missing-values}
 # TODO
 ```
+
+TODO remove NAs
+
+```{r remove-NAs}
+
+```
+
 
 ```{r scatterplots, echo=FALSE}
 # Scatterplots of the numerical columsn vs target
@@ -103,6 +112,7 @@ From above, we see a linear relationship between SalePrice and the following:
 * Year built/remodeled. Newer houses are more expensive (though some interesting increase for <1900)
 
 
+We can plot the SalePrice. We see that there are lots of outliers and the SalePrice is right-skewed
 ```{r SalePrice-distribution}
 housing %>% 
   ggplot(aes(x = SalePrice)) +
@@ -115,5 +125,30 @@ housing %>%
 housing %>% 
   ggplot(aes(x = SalePrice)) +
   geom_boxplot()
+```
+By taking the natural log of SalePrice, we can get a more normal distribution, though now left-skewed
+```{r log-SalePrice}
+housing %>% 
+  ggplot(aes(x = log(SalePrice))) +
+  geom_histogram()
+
+housing %>% 
+  ggplot(aes(x = log(SalePrice))) +
+  geom_density()
+```
+
+TODO Handling outliers
+
+Do we remove them? Look at SaleCond for Abnormal sales
+```{r outliers}
+
+```
+
+TODO Check for multicolinearity by looking at R^2 matrix. Need to remove NAs I think
+```{r correlation-matrix}
+# See: https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html
+library(corrplot)
+housing.cors <- cor(housing[numerical.cols])
+corrplot(housing.cors)
 ```
 
