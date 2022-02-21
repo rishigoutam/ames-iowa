@@ -176,6 +176,9 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
+# RStudio project files
+ames-iowa.Rproj
+
 # macOS
 .DS_Store
 
