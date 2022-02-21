@@ -1,0 +1,67 @@
+---
+title: "Preprocess / Clean Housing Data"
+author: "Rishi Goutam"
+date: "2/19/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+```
+
+## Read housing data
+
+```{r echo=FALSE, message=FALSE}
+housing = readr::read_csv("../data/Ames_Housing_Price_Data.csv")
+sapply(housing, class)
+```
+
+
+```{r echo=TRUE, message=FALSE}
+# first column is empty string ``, renamed to `...1` by readr
+colnames(housing)
+nrow(housing)
+ncol(housing)
+head(housing)
+```
+
+``` {r summary}
+summary(housing)
+```
+
+
+
+
+```{r feature-groups}
+
+# GUID: PID
+# Target variable: SalePrice
+
+categorical.cols <- c("MSSubClass", "MSZoning", "Street", "Alley", "LotShape", "LandContour", "Utilities", "LotConfig", "LandSlope", "Neighborhood", "Condition1", "Condition2", "BldgType", "HouseStyle", "OverallQual", "OverallCond", "RoofStyle", "RoofMatl", "Exterior1st", "Exterior2nd", "MasVnrType", "ExterQual", "ExterCond", "Foundation", "BsmtQual", "BsmtCond", "BsmtExposure", "BsmtFinType1", "BsmtFinType2", "Heating", "HeatingQC", "CentralAir", "Electrical", "KitchenQual", "TotRmsAbvGrd", "Functional", "Fireplaces", "FireplaceQu", "GarageType", "GarageFinish", "GarageCars", "GarageQual", "GarageCond", "PavedDrive", "PoolQC", "Fence", "MiscFeature", "SaleType", "SaleCondition")
+
+numerical.cols <- c("GrLivArea", "LotFrontage", "LotArea", "YearBuilt", "YearRemodAdd", "MasVnrArea", "BsmtFinSF1", "BsmtFinSF2", "BsmtUnfSF", "TotalBsmtSF", "1stFlrSF", "2ndFlrSF", "LowQualFinSF", "GarageYrBlt", "GarageArea", "WoodDeckSF", "OpenPorchSF", "EnclosedPorch", "3SsnPorch", "ScreenPorch", "PoolArea", "MiscVal", "MoSold", "YrSold")
+
+boolean.cols <- c("BsmtFullBath", "BsmtHalfBath", "FullBath", "HalfBath", "BedroomAbvGr", "KitchenAbvGr")
+
+# dates <- c("YearBuilt", "YearRemodAdd", "GarageYrBlt", "MoSold", "YrSold")
+
+# Cast housing df columns to correct type
+housing[categorical.cols] <- sapply(housing[categorical.cols], forcats::as_factor)
+housing[numerical.cols] <- sapply(housing[numerical.cols], as.numeric)
+housing[boolean.cols] <- sapply(housing[boolean.cols], as.logical)
+
+```
+
+
+```{r histograms, echo=FALSE}
+library(Hmisc)
+
+# Histograms of the numeric values
+hist.data.frame(housing[numerical.cols], freq = TRUE, na.big = TRUE, rugs = FALSE)
+# n: number of values, m: number of missing values
+```
+
+
+
