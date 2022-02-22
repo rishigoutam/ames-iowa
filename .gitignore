@@ -185,11 +185,18 @@ ames-iowa.Rproj
 # IntelliJ
 .idea/*
 
-# Additional Files
+#################################################
+
+# Individual Files
+## Provided Data files and Python Notebook
+data/Ames_Housing_Price_Data.csv
+data/Ames_Real_Estate_Data.csv
+Machine Learning Project Proposal.ipynb
+## Excel Data files and temp files
 data/Ames_Housing_Price_Data.xlsx
 data/~$Ames_Housing_Price_Data.xlsx
 data/Ames_Real_Estate_Data.xlsx
 data/~$Ames_Real_Estate_Data.xlsx
-rishi/eda.html
+## Additional Files
 project-management/TODO.html
-Machine Learning Project Proposal.ipynb
+rishi/eda.html
