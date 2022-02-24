@@ -40,3 +40,72 @@ SaleType = pd.Series({
     'Oth': 'Other'
 }, name="SaleType")
 
+
+# WARNING: match requires python 3.10
+def convert_exterqual(ordinal_value):
+    """
+    Gets the numeric value for the ExterQual ordinal value
+    :param ordinal_value: one of 'Ex', 'Gd', 'TA', 'Fa', 'Po'
+    :return: numeric value from 5 to 1
+    """
+    match ordinal_value:
+        case 'Ex':
+            return 5
+        case 'Gd':
+            return 4
+        case 'TA':
+            return 3
+        case 'Fa':
+            return 2
+        case 'Po':
+            return 1
+        case _:
+            raise KeyError(f'Invalid ExterQual key {ordinal_value}')
+
+# WARNING: match requires python 3.10
+def convert_extercond(ordinal_value):
+    """
+    Gets the numeric value for the ExterCond ordinal value
+    :param ordinal_value: one of 'Ex', 'Gd', 'TA', 'Fa', 'Po'
+    :return: numeric value from 5 to 1
+    """
+    match ordinal_value:
+        case 'Ex':
+            return 5
+        case 'Gd':
+            return 4
+        case 'TA':
+            return 3
+        case 'Fa':
+            return 2
+        case 'Po':
+            return 1
+        case _:
+            raise KeyError(f'Invalid ExterCond key {ordinal_value}')
+
+# WARNING: match requires python 3.10
+def convert_functional(ordinal_value):
+    """
+    Gets the numeric value for the Functional ordinal value
+    :param ordinal_value: one of 'Typ', 'Min1', 'Min2', 'Mod', 'Maj1', 'Maj2', 'Sev', 'Sal'
+    :return: numeric value from 8 to 1
+    """
+    match ordinal_value:
+        case 'Typ':
+            return 8
+        case 'Min1':
+            return 7
+        case 'Min2':
+            return 6
+        case 'Mod':
+            return 5
+        case 'Maj1':
+            return 4
+        case 'Maj2':
+            return 3
+        case 'Sev':
+            return 2
+        case 'Sal':
+            return 1
+        case _:
+            raise KeyError(f'Invalid Functional key {ordinal_value}')
