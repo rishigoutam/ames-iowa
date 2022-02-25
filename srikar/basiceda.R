@@ -24,7 +24,7 @@ hvac %>% ggplot() + geom_boxplot(aes(x=Heating, y=SalePrice, color=Heating))+
 hvac %>% ggplot() + geom_boxplot(aes(x=HeatingQC, y=SalePrice, color=HeatingQC)) + 
   geom_jitter(shape=1,size=.3, position=position_jitter(0.2),aes(x=HeatingQC, y=SalePrice, color=HeatingQC, alpha=.3))
 #heating Quality follows a pattern we expect--need to do p-test
-#
+#two sample p testt on gd,ta and ta,fa
 
 hvac %>% ggplot() + geom_boxplot(aes(x=CentralAir, y=SalePrice, color=CentralAir)) +
   geom_jitter(shape=1,size=.3, position=position_jitter(0.2),aes(x=CentralAir, y=SalePrice, color=CentralAir, alpha=.3))
