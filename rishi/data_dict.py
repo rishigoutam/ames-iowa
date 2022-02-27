@@ -1,7 +1,8 @@
 """
 Helper module for getting descriptions/labels of Ames Housing features
+and mapping ordinal values
 
-See: `data/data_description.txt`
+See: `../data/data_description.txt` for values
 """
 
 import pandas as pd
@@ -40,72 +41,150 @@ SaleType = pd.Series({
     'Oth': 'Other'
 }, name="SaleType")
 
-
-# WARNING: match requires python 3.10
-def convert_exterqual(ordinal_value):
+def convert_po_to_ex(categorical_value):
     """
-    Gets the numeric value for the ExterQual ordinal value
-    :param ordinal_value: one of 'Ex', 'Gd', 'TA', 'Fa', 'Po'
+    Gets the ordinal value for the given categorical value
+    :param categorical_value: one of 'Ex', 'Gd', 'TA', 'Fa', 'Po'
     :return: numeric value from 5 to 1
     """
-    match ordinal_value:
-        case 'Ex':
-            return 5
-        case 'Gd':
-            return 4
-        case 'TA':
-            return 3
-        case 'Fa':
-            return 2
-        case 'Po':
-            return 1
-        case _:
-            raise KeyError(f'Invalid ExterQual key {ordinal_value}')
+    match categorical_value:
+        case 'Ex': return 5
+        case 'Gd': return 4
+        case 'TA': return 3
+        case 'Fa': return 2
+        case 'Po': return 1
+
 
 # WARNING: match requires python 3.10
-def convert_extercond(ordinal_value):
-    """
-    Gets the numeric value for the ExterCond ordinal value
-    :param ordinal_value: one of 'Ex', 'Gd', 'TA', 'Fa', 'Po'
-    :return: numeric value from 5 to 1
-    """
-    match ordinal_value:
-        case 'Ex':
-            return 5
-        case 'Gd':
-            return 4
-        case 'TA':
-            return 3
-        case 'Fa':
-            return 2
-        case 'Po':
-            return 1
-        case _:
-            raise KeyError(f'Invalid ExterCond key {ordinal_value}')
+def convert_exterqual(categorical_value):
+    return convert_po_to_ex(categorical_value)
 
-# WARNING: match requires python 3.10
-def convert_functional(ordinal_value):
-    """
-    Gets the numeric value for the Functional ordinal value
-    :param ordinal_value: one of 'Typ', 'Min1', 'Min2', 'Mod', 'Maj1', 'Maj2', 'Sev', 'Sal'
-    :return: numeric value from 8 to 1
-    """
-    match ordinal_value:
-        case 'Typ':
-            return 8
-        case 'Min1':
-            return 7
-        case 'Min2':
-            return 6
-        case 'Mod':
-            return 5
-        case 'Maj1':
-            return 4
-        case 'Maj2':
-            return 3
-        case 'Sev':
-            return 2
-        case 'Sal':
-            return 1
-        case _:
-            raise KeyError(f'Invalid Functional key {ordinal_value}')
+
+def convert_extercond(categorical_value):
+    return convert_po_to_ex(categorical_value)
+
+
+def convert_bsmtqual(categorical_value):
+    if categorical_value == 'NoBasement':
+        return 0
+    else:
+        return convert_po_to_ex(categorical_value)
+
+
+def convert_bsmtcond(categorical_value):
+    if categorical_value == "NoBasement":
+        return 0
+    else:
+        return convert_po_to_ex(categorical_value)
+
+
+def convert_bsmtexposure(categorical_value):
+    match categorical_value:
+        case 'Gd': return 3
+        case 'Av': return 2
+        case 'Mn': return 1
+        case 'NoBasement': return 0
+
+
+def convert_bsmtfintype(categorical_value):
+    match categorical_value:
+        case 'GLQ': return 6
+        case 'ALQ': return 5
+        case 'BLQ': return 4
+        case 'Unf': return 1
+        case 'LwQ': return 2
+        case 'Rec': return 3
+        case 'NoBasement': return 0
+
+
+def convert_functional(categorical_value):
+    match categorical_value:
+        case 'Typ': return 8
+        case 'Min1': return 7
+        case 'Min2': return 6
+        case 'Mod': return 5
+        case 'Maj1': return 4
+        case 'Maj2': return 3
+        case 'Sev': return 2
+        case 'Sal': return 1
+
+
+def convert_fireplacequ(categorical_value):
+    if categorical_value == "NoFireplace":
+        return 0
+    else:
+        return convert_po_to_ex(categorical_value)
+
+
+def convert_heatingqc(categorical_value):
+    return convert_po_to_ex(categorical_value)
+
+
+def convert_kitchenqual(categorical_value):
+    return convert_po_to_ex(categorical_value)
+
+
+def convert_landslope(categorical_value):
+    match categorical_value:
+        case 'Gtl': return 3
+        case 'Mod': return 2
+        case 'Sev': return 0
+
+
+def convert_lotshape(categorical_value):
+    match categorical_value:
+        case 'Reg': return 4
+        case 'IR1': return 3
+        case 'IR2': return 2
+        case 'IR3': return 1
+
+
+def convert_garagecond(categorical_value):
+    if categorical_value == "NoGarage":
+        return 0
+    else:
+        return convert_po_to_ex(categorical_value)
+
+
+def convert_garagequal(categorical_value):
+    if categorical_value == "NoGarage":
+        return 0
+    else:
+        return convert_po_to_ex(categorical_value)
+
+
+def convert_street(categorical_value):
+    match categorical_value:
+        case 'Pave': return 2
+        case 'Grvl': return 1
+
+
+def convert_paveddrive(categorical_value):
+    match categorical_value:
+        case 'Y': return 3
+        case 'P': return 2
+        case 'N': return 1
+
+
+def convert_alley(categorical_value):
+    match categorical_value:
+        case 'Pave': return 2
+        case 'Grvl': return 1
+        case 'NoAlley': return 0
+
+
+def convert_utilities(categorical_value):
+    match categorical_value:
+        case 'AllPub': return 4
+        case 'NoSewr': return 3
+        case 'NoSeWa': return 2
+        case 'ELO': return 1
+
+
+def convert_poolqc(categorical_value):
+    match categorical_value:
+        case 'Ex': return 4
+        case 'Gd': return 3
+        case 'TA': return 2
+        case 'Fa': return 1
+        case 'NoPool': return 0  # PoolQC does not have a 'Po' category
