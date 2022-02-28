@@ -31,6 +31,7 @@ flowchart TD
         direction LR
         ordinate[[convert categorical \nfeatures to ordinal]]-->cat
         cat[[encode categorical \nfeatures]]-->indicator
+        style cat fill:orange
         indicator[[create indicator \nfeatures]]
     end
     
@@ -48,7 +49,7 @@ flowchart TD
         direction TB
         subgraph lin_features [model features]
             direction LR
-            style lin_features fill:#f9f, stroke-dasharray: 5 5
+            style lin_features stroke-dasharray: 5 5
             numerical---cat_encoded[one-hot encoded\ncategorical]---boolean
         end
         lin_features--->linear_model[linear model]
@@ -57,10 +58,12 @@ flowchart TD
     subgraph algo [fancy_algo.ipynb]
         direction LR
         TODO>TODO]
+        style TODO fill:orange
     end
     
     subgraph score [score.ipynb]
         score_model[[score model]]
+        style score_model fill:orange
     end
     
     d_e-->eda
