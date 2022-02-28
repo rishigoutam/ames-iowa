@@ -47,8 +47,10 @@ flowchart TD
     
     subgraph lin_regression [lreg.ipynb]
         direction TB
+        style lin_regression fill:orange
         subgraph lin_features [model features]
             direction LR
+            style lin_features fill:orange
             style lin_features stroke-dasharray: 5 5
             numerical---cat_encoded[one-hot encoded\ncategorical]---boolean
         end
@@ -62,8 +64,8 @@ flowchart TD
     end
     
     subgraph score [score.ipynb]
+        style score fill:orange
         score_model[[score model]]
-        style score_model fill:orange
     end
     
     d_e-->eda
