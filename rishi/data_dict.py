@@ -241,7 +241,7 @@ def get_num_floors(mssubclass):
 def collapse_mssubclass(mssubclass: int):
     """
     :param mssubclass: the dwelling type of the property from the 16 choices of MSSubClass
-    :return: the collapsed subclass type: 1, 2, Split, 1.5, 2.5, Duplex
+    :return: the collapsed subclass type: Traditional, Split, Duplex
     """
     # NOTE: We could match on `mssubclass` directly, but it's easier to understand the below
     dwelling = MSSubClass[mssubclass]

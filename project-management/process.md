@@ -27,12 +27,15 @@ flowchart TD
     
     clean-->d_c[(cleaned.csv)]
     
-    subgraph encode [encode.ipynb]
+    subgraph encode [engineer.ipynb]
         direction LR
         ordinate[[convert categorical \nfeatures to ordinal]]-->cat
         cat[[encode categorical \nfeatures]]-->indicator
         style cat fill:orange
-        indicator[[create indicator \nfeatures]]
+        indicator[[create indicator \nfeatures]]-->new
+        style indicator fill:orange
+        new[[create new \nfeatures]]
+        style new fill:orange
     end
     
     d_c-->encode-->d_e[(encoded.csv)]
