@@ -190,16 +190,6 @@ def convert_poolqc(categorical_value):
         case 'NoPool': return 0  # PoolQC does not have a 'Po' category
 
 
-def convert_mssubclass(numerical_value):
-    """
-
-    :param numerical_value: the dwelling type
-    :return: the subclass type: 1, 2, Split, 1.5, 2.5, Duplex
-    """
-    match numerical_value:
-        case _: return None
-
-
 def convert_mosold(numerical_value):
     match numerical_value:
         case 1: return "January"
@@ -244,5 +234,27 @@ def get_num_floors(mssubclass):
         return 2
     elif dwelling in ['2-1/2 STORY ALL AGES']:
         return 2.5
+    else:
+        raise KeyError(f"Invalid dwelling type detected: {dwelling}")
+
+
+def collapse_mssubclass(mssubclass: int):
+    """
+    :param mssubclass: the dwelling type of the property from the 16 choices of MSSubClass
+    :return: the collapsed subclass type: 1, 2, Split, 1.5, 2.5, Duplex
+    """
+    # NOTE: We could match on `mssubclass` directly, but it's easier to understand the below
+    dwelling = MSSubClass[mssubclass]
+    if dwelling in ['1-STORY 1946 & NEWER ALL STYLES', '1-STORY 1945 & OLDER',
+                    '1-STORY PUD (Planned Unit Development) - 1946 & NEWER',
+                    '1-1/2 STORY - UNFINISHED ALL AGES', '1-1/2 STORY FINISHED ALL AGES',
+                    '1-1/2 STORY PUD - ALL AGES', '1-STORY W/FINISHED ATTIC ALL AGES',
+                    '2-STORY 1946 & NEWER', '2-STORY 1945 & OLDER',
+                    '2-STORY PUD - 1946 & NEWER', '2-1/2 STORY ALL AGES']:
+        return 'Traditional'
+    elif dwelling in ['SPLIT FOYER', 'SPLIT OR MULTI-LEVEL', 'PUD - MULTILEVEL - INCL SPLIT LEV/FOYER']:
+        return 'Split'
+    elif dwelling in ['DUPLEX - ALL STYLES AND AGES', '2 FAMILY CONVERSION - ALL STYLES AND AGES']:
+        return 'Duplex'
     else:
         raise KeyError(f"Invalid dwelling type detected: {dwelling}")
