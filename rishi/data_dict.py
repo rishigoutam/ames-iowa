@@ -62,14 +62,6 @@ def __convert_po_to_ex(categorical_value):
             return 1
 
 
-def convert_overallqual(categorical_value):
-    return __convert_po_to_ex(categorical_value)
-
-
-def convert_overallcond(categorical_value):
-    return __convert_po_to_ex(categorical_value)
-
-
 def convert_exterqual(categorical_value):
     return __convert_po_to_ex(categorical_value)
 
