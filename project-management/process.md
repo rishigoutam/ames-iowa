@@ -38,14 +38,22 @@ flowchart TD
         style new fill:orange
     end
     
-    d_c-->encode-->d_e[(encoded.csv)]
+    d_c-->encode-->d_e[(engineered.csv)]
     
-    subgraph eda [eda.ipynb]
-        direction LR
-        histograms
-        boxplots
-        scatterplots
-        regplots
+    subgraph eda [eda.ipynb + eda.R]
+        direction TB
+        subgraph eda_plots[plots]
+            histograms
+            boxplots
+            scatterplots
+            regplots
+        end
+        subgraph stats
+            stats_cor[correlation,\n multicolinearity]
+            stats_significance[p-values\n model significance]
+            stats_assumptions[check \nassumptions]
+            stats_tests[statistical\n tests]
+        end
     end
     
     subgraph lin_regression [lreg.ipynb]
