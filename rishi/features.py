@@ -11,16 +11,14 @@ target = ['SalePrice', 'LogSalePrice']
 
 __collapse_ordinal = set()
 __combine_ordinal = set()
-__drop_ordinal = set()
 __ordinal = {'ExterQual', 'ExterCond', 'OverallCond', 'OverallQual', 'BsmtQual', 'BsmtCond', 'BsmtExposure',
            'BsmtFinType1', 'BsmtFinType2', 'Functional', 'FireplaceQu', 'HeatingQC', 'KitchenQual', 'LandSlope',
            'LotShape', 'GarageCond', 'GarageQual', 'Street', 'PavedDrive', 'Alley', 'Utilities', 'PoolQC'}
-ordinal = list(__ordinal.union(__collapse_ordinal).union(__combine_ordinal) - __drop_ordinal)
+ordinal = list(__ordinal.union(__collapse_ordinal).union(__combine_ordinal))
 
 # TODO create more based on R^2. We want to create features only if we will use them
 __collapse_categorical = {'Collapse_MSSubClass'}
 __combine_categorical = set()
-__drop_categorical = {'MSSubClass'}
 __categorical = {'MSSubClass', 'MSZoning',
                'LandContour', 'LotConfig', 'Neighborhood',
                'Condition1', 'Condition2', 'BldgType', 'HouseStyle',
@@ -28,10 +26,9 @@ __categorical = {'MSSubClass', 'MSZoning',
                'CentralAir', 'Electrical', 'GarageType', 'GarageFinish', 'Fence', 'MiscFeature',
                'MoSold', 'YrSold',
                'SaleType', 'SaleCondition'}
-categorical = list(__categorical.union(__collapse_categorical).union(__combine_categorical) - __drop_categorical)
+categorical = list(__categorical.union(__collapse_categorical).union(__combine_categorical))
 
 __new_numerical = {'NumFloors', 'BsmtAllBaths', 'AbvGrdBaths'}
-__drop_numerical = {'BsmtFullBath', 'BsmtHalfBath', 'FullBath', 'HalfBath', 'YearBuilt', 'YearRemodAdd'}
 __numerical = {'GrLivArea', 'LotArea', 'LotFrontage', 'MasVnrArea',
              'BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF',
              '1stFlrSF', '2ndFlrSF', 'LowQualFinSF',
@@ -40,7 +37,7 @@ __numerical = {'GrLivArea', 'LotArea', 'LotFrontage', 'MasVnrArea',
              'WoodDeckSF', 'OpenPorchSF', 'EnclosedPorch', '3SsnPorch', 'ScreenPorch', 'PoolArea',
              'YearBuilt', 'YearRemodAdd',
              'MiscVal'}
-numerical = list(__numerical.union(__new_numerical) - __drop_numerical)
+numerical = list(__numerical.union(__new_numerical))
 
 # TODO create more based on R^2. We want to create features only if we will use them
 booleans = ['IsPUD']
