@@ -7,7 +7,7 @@ The features are created/dropped in `engineer.ipynb` and must be manually entere
 import pandas as pd
 
 guid = ['PID']
-target = ['SalePrice']
+target = ['SalePrice', 'LogSalePrice']
 
 __collapse_ordinal = set()
 __combine_ordinal = set()
