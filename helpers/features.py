@@ -42,7 +42,7 @@ numerical = list(__numerical.union(__new_numerical))
 # TODO create more based on R^2. We want to create features only if we will use them
 booleans = ['IsPUD', 'IsRenovated', 'IsNearNegativeCondition', 'IsNearPositiveCondition']
 
-features = ordinal + categorical + numerical + booleans
+features = ordinal + categorical + numerical + booleans + ['DateSold']
 
 
 def check_features(df: pd.DataFrame) -> None:
