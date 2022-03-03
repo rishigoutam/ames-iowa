@@ -28,7 +28,7 @@ __categorical = {'MSSubClass', 'MSZoning',
                'SaleType', 'SaleCondition'}
 categorical = list(__categorical.union(__collapse_categorical).union(__combine_categorical))
 
-__new_numerical = {'NumFloors', 'BsmtAllBaths', 'AbvGrdBaths'}
+__new_numerical = {'NumFloors', 'Combine_BathroomsBsmt', 'Combine_BathroomsAbvGrd', 'AllBathrooms', 'Combine_Age'}
 __numerical = {'GrLivArea', 'LotArea', 'LotFrontage', 'MasVnrArea',
              'BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF',
              '1stFlrSF', '2ndFlrSF', 'LowQualFinSF',
@@ -40,7 +40,7 @@ __numerical = {'GrLivArea', 'LotArea', 'LotFrontage', 'MasVnrArea',
 numerical = list(__numerical.union(__new_numerical))
 
 # TODO create more based on R^2. We want to create features only if we will use them
-booleans = ['IsPUD']
+booleans = ['IsPUD', 'IsRenovated', 'IsNearNegativeCondition', 'IsNearPositiveCondition']
 
 features = ordinal + categorical + numerical + booleans
 
@@ -51,7 +51,7 @@ def check_features(df: pd.DataFrame) -> None:
     :param df:
     :return: None
     """
-    print(f"{len(df.columns)} #columns == {len(guid + target + features)} #features+PID+SalePrice")
+    print(f"{len(df.columns)} #columns == {len(guid + target + features)} #features+PID+targets")
 
 
 def check_features2(df: pd.DataFrame) -> pd.Series:

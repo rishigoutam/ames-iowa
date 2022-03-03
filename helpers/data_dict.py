@@ -322,3 +322,18 @@ def collapse_mssubclass(mssubclass: str):
         return 'Duplex'
     else:
         raise KeyError(f"Invalid dwelling type detected: {dwelling}")
+
+
+def get_bad_condition_indicator(categorical_value):
+    match categorical_value:
+        case 'Artery' | 'RRNn' | 'RRAn' | 'RRNe' | 'RRAe':
+            return True
+        case _:
+            return False
+
+def get_good_condition_indicator(categorical_value):
+    match categorical_value:
+        case 'PosN' | 'PosA':
+            return True
+        case _:
+            return False
