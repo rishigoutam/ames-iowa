@@ -4,20 +4,20 @@
 
 ```mermaid
 flowchart TD
-    d_r[(house_locations.csv)]-->geo
-    d_h[(house_prices.csv)]-->geo
+    d_r[(Ames_Real_Estate\n_Data.csv)]-->geo
+    d_h[(Ames_Housing_Price\n_Data.csv)]-->geo
     
-    subgraph geo [geo_locations.ipynb]
+    subgraph geo [Get Latitude/Longitude <geo_locations.ipynb>]
         direction LR
         merge[[merge datasets]]-->geopy
-        geopy[[get lat/long\n with geopy]]
+        geopy[[get coordinates\n using geopy]]
     end
     
     geo-->d_g[(housing_geolocation.csv)]
 
-    d_h[(house_prices.csv)]-->clean
+    d_h-->clean
     
-    subgraph clean [clean.ipynb]
+    subgraph clean [Data Cleaning <clean.ipynb>]
         direction LR
         dupe[[remove \nduplicates]]-->outlier
         outlier[[remove \noutliers]]-->fillna
@@ -27,11 +27,9 @@ flowchart TD
     
     clean-->d_c[(cleaned.csv)]
     
-    subgraph encode [engineer.ipynb]
+    subgraph encode [Feature Engineering <engineer.ipynb>]
         direction LR
-        ordinate[[convert categorical \nfeatures to ordinal]]-->cat
-        cat[[encode categorical \nfeatures]]-->indicator
-        style cat fill:orange
+        ordinate[[convert categorical \nfeatures to ordinal]]-->indicator
         indicator[[create indicator \nfeatures]]-->new
         style indicator fill:orange
         new[[create new \nfeatures]]
@@ -40,32 +38,35 @@ flowchart TD
     
     d_c-->encode-->d_e[(engineered.csv)]
     
-    subgraph eda [eda.ipynb + eda.R]
+    subgraph eda [EDA <eda.ipynb, eda.R>]
         direction TB
-        subgraph eda_plots[plots]
-            histograms
-            boxplots
-            scatterplots
-            regplots
-        end
-        subgraph stats
-            stats_cor[correlation,\n multicolinearity]
-            stats_significance[p-values\n model significance]
-            stats_assumptions[check \nassumptions]
-            stats_tests[statistical\n tests]
-        end
+        histograms
+        boxplots
+        scatterplots
+        regplots
     end
     
-    subgraph lin_regression [lreg.ipynb]
+    subgraph lin_regression [Multiple Linear Regression <linreg.ipynb, linreg.R>]
         direction TB
-        style lin_regression fill:orange
-        subgraph lin_features [model features]
+        subgraph lin_features [Select Model Features]
             direction LR
-            style lin_features fill:orange
-            style lin_features stroke-dasharray: 5 5
-            numerical---cat_encoded[one-hot encoded\ncategorical]---boolean
+            style lin_features stroke-dasharray: 5 5, fill: khaki
+            cat_encoded--->dummify[[dummify]]
+            numerical---|plus|cat_encoded[categorical]---|plus|boolean
         end
-        lin_features--->linear_model[linear model]
+        
+        lin_features--->
+        linear_model[[create model]]--->
+        validate--->|iterate|lin_features
+        
+        subgraph validate [Validate and Score]
+            direction LR
+            style validate stroke-dasharray: 5 5, fill:khaki
+            stats_significance[feature significance: p-values]
+            stats_cor[multicolinearity: vif]
+            stats_score[score: R^2, RMSE]
+        end
+        
     end
     
     subgraph algo [fancy_algo.ipynb]
@@ -74,15 +75,9 @@ flowchart TD
         style TODO fill:orange
     end
     
-    subgraph score [score.ipynb]
-        style score fill:orange
-        score_model[[score model]]
-    end
-    
-    d_e-->eda
+    d_c-->eda
     d_e-->lin_regression
     d_e-->algo
     
-    lin_regression & algo-->score
     lin_regression & algo-->kaggle[\submit on kaggle/]
 ```
