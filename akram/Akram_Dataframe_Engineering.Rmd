@@ -1,0 +1,116 @@
+---
+title: "Akram_Dataframe_Engineering"
+output: html_document
+---
+
+Load packages:
+
+```{r}
+library(Quandl)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(tidyquant)
+library(patchwork)
+library(lubridate)
+library(zoo)
+
+path = "~/Desktop/NYCDSA/Homework/Project3/Akram/EDA"
+setwd(path)
+
+```
+
+Import data frames:
+
+```{r}
+
+df_cleaned = read.csv("~/Desktop/NYCDSA/Homework/Project3/Akram/Data/cleaned.csv")
+
+df_engineered = read.csv("~/Desktop/NYCDSA/Homework/Project3/Akram/Data/engineered.csv")
+
+Ames_Start = as.Date("2006-01-01")
+Ames_End = as.Date("2010-12-31")
+
+
+TNX = tq_get("^TNX",
+             from = Ames_Start,
+             to = Ames_End,
+             get = "stock.prices"
+             ) %>%
+  select(date, adjusted) %>%
+  rename(rate = adjusted)
+
+TNX = TNX %>%
+  group_by(DateSold = lubridate::floor_date(date, "month")) %>%
+  summarise(Rate = mean(rate, na.rm=TRUE))
+
+head(TNX)
+
+df_cleaned = df_cleaned %>% 
+  mutate(
+    DaySold = as.integer(1), 
+    DateSold = make_date(YrSold,MoSold,DaySold)
+  )
+
+df_cleaned = df_cleaned %>%
+  relocate(DateSold, .after = PID) %>%
+  relocate(SalePrice, .before = GrLivArea) %>%
+  select(-c(X, YrSold, MoSold, DaySold)) %>%
+  arrange(ymd(df_cleaned$DateSold), SalePrice)
+
+head(df_cleaned)
+
+```
+
+Merge interest rate with main dataframe:
+
+```{r}
+
+# First, create logSalePrice column
+
+df_cleaned$logSalePrice = log10(df_cleaned$SalePrice)
+
+# Merge TNX with df_cleaned
+
+df_cleaned = df_cleaned %>%
+  left_join(TNX, by="DateSold") %>%
+  relocate(Rate, .after = SalePrice) %>%
+  relocate(logSalePrice, .after = SalePrice)
+
+head(df_cleaned)
+
+
+```
+
+
+This is a special script for Rishi's engineered csv. I want to replace the character date columns with the DateSold date column. Can't do it directly though his Python script, as helpers isn't working in my Jupyter notebook.
+
+What I will do is extract PID, DateSold, Rate from my df_cleaned dataframe and merge it with df_engineered.
+
+N.B. Might have to move this part to after I do my own feature engineering on df_cleaned.
+
+```{r}
+
+# Extract subset of columns from df_cleaned for insertion into df_engineered
+
+df_temp = df_cleaned %>%
+  select(PID, DateSold, Rate, logSalePrice)
+
+# Merge df_temp with df_engineered
+
+df_engineered = df_engineered %>%
+  left_join(df_temp, by="PID") %>%
+  relocate(DateSold, .after = PID) %>%
+  relocate(SalePrice, .after = DateSold) %>%
+  relocate(logSalePrice, .after = SalePrice) %>%
+  relocate(Rate, .after = logSalePrice) %>%
+  select(-c(X, YrSold, MoSold, LogSalePrice))
+
+df_engineered =  df_engineered %>%
+  arrange(ymd(df_engineered$DateSold), SalePrice)
+
+head(df_engineered)
+
+```
+
+
