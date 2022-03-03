@@ -201,12 +201,13 @@ prop.table(table(gardriv$PavedDrive))
 
 
 #BBK
-bbk <- ames %>% select(PID, SalePrice, FullBath, HalfBath, BedroomAbvGr,
+bbk <- ames %>% select(PID, SalePrice, MSSubClass,  FullBath, HalfBath, BedroomAbvGr,
                         KitchenAbvGr, KitchenQual)
 bbk$FullBath <- as.factor(bbk$FullBath) #convert quality into factor
 bbk$HalfBath <- as.factor(bbk$HalfBath) #convert quality into factor
 bbk$BedroomAbvGr <-as.factor(bbk$BedroomAbvGr) 
 bbk$KitchenAbvGr <- as.factor(bbk$KitchenAbvGr) 
+bbk$MSSubClass <- as.factor(bbk$MSSubClass)
 bbk$KitchenQual <- as.factor(bbk$KitchenQual) %>%
   fct_relevel(c("Ex","Gd","TA","Fa", "Po")) #convert quality into factor
 
@@ -229,9 +230,9 @@ prop.table(table(bbk$HalfBath))
 
 
   #Bedroom
-bbk %>% ggplot() + geom_boxplot(aes(x=BedroomAbvGr, y=SalePrice, color=BedroomAbvGr)) +
-  geom_jitter(shape=1,size=.3, position=position_jitter(0.2),aes(x=BedroomAbvGr, y=SalePrice, color=BedroomAbvGr, alpha=.3))
-prop.table(table(bbk$BedroomAbvGr))
+bbk %>% ggplot() + geom_boxplot(aes(x=BedroomAbvGr, y=SalePrice)) +
+  geom_jitter(shape=1,size=.3, position=position_jitter(0.2),aes(x=BedroomAbvGr, y=SalePrice, color=MSSubClass, alpha=.3))
+prop.table(table(bbk$BedroomAbvGr)) #revisit after cleaning subclasses
 
   #Kitchen
 bbk %>% ggplot() + geom_boxplot(aes(x=KitchenAbvGr, y=SalePrice, color=KitchenAbvGr)) +
@@ -262,10 +263,30 @@ ypdp$PoolQC <- as.factor(ypdp$PoolQC) %>%
   fct_relevel(c("Ex","Gd","TA","Fa", "Po")) #convert quality into factor
 
 ypdp %>% ggplot() + geom_point(aes(x=WoodDeckSF, y=SalePrice))
+ypdp %>% ggplot() + geom_point(aes(x=WoodDeckSF, y=log(SalePrice)))
+
 ypdp %>% ggplot() + geom_point(aes(x=OpenPorchSF, y=SalePrice))
+ypdp %>% ggplot() + geom_point(aes(x=OpenPorchSF, y=log(SalePrice)))
+
 ypdp %>% ggplot() + geom_point(aes(x=OpenPorchSF, y=SalePrice,color = WoodDeckSF))
+ypdp %>% ggplot() + geom_point(aes(x=OpenPorchSF, y=log(SalePrice),color = WoodDeckSF))
 ypdp %>% ggplot() + geom_point(aes(x=WoodDeckSF, y=OpenPorchSF, color=SalePrice))
 ypdp %>% ggplot() + geom_point(aes(x=EnclosedPorch, y=OpenPorchSF, color=SalePrice))
+ypdp %>% ggplot() + geom_point(aes(x=WoodDeckSF, y=SalePrice)) + 
+  geom_point(aes(x=OpenPorchSF, y=SalePrice, color = 'r')) +
+  geom_point(aes(x=`3SsnPorch`, y=SalePrice, color = 'g')) +
+  geom_point(aes(x=EnclosedPorch, y=SalePrice, color = 'b')) +
+  geom_point(aes(x=ScreenPorch, y=SalePrice, color = 'y')) +
+  geom_point(aes(x=PoolArea, y=SalePrice, color = 'o')) 
+
+ypdp %>% ggplot() + geom_point(aes(x=WoodDeckSF, y=log(SalePrice) )) + 
+  geom_point(aes(x=OpenPorchSF, y=log(SalePrice) , color = 'r')) +
+  geom_point(aes(x=`3SsnPorch`, y=log(SalePrice) , color = 'g')) +
+  geom_point(aes(x=EnclosedPorch, y=log(SalePrice) , color = 'b')) +
+  geom_point(aes(x=ScreenPorch, y=log(SalePrice) , color = 'y')) +
+  geom_point(aes(x=PoolArea, y=log(SalePrice) , color = 'o')) 
+#linear regression for each, compare the slopes 
+
 
 
 ypdp %>% ggplot() + geom_point(aes(x=`3SsnPorch`, y=SalePrice))
