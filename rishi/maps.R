@@ -50,8 +50,8 @@ PlotOnStaticMap(terrmap, lat = ames$latitude, lon = ames$longitude)
 ggplot() +
 geom_point(data = ames,
            aes(x = longitude, y = latitude, color = SalePrice),
-           shape = 19, alpha = 0.9) +
-  scale_color_gradient(low = "lightyellow", high = "darkblue") +
+           shape = 19, alpha = 0.8) +
+  scale_color_gradient(low = "lightgreen", high = "darkred") +
   theme(legend.position = "right")
 
 ## TODO get CollapsedNeighboor (max six types)
