@@ -20,7 +20,7 @@ data <- data %>% select(-c(YrSold,MoSold))
 
 data %>% select(Neighborhood) %>% unique() %>% view()
 #We Get Average prices by group, and by date. 
-data %>% group_by(Neighborhood, date) %>% 
-  summarise_at(vars(SalePrice), list(AvPrice = mean))
-
+data <- data %>% group_by(Neighborhood, date) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
+#No StDev when only one house in paramatercoordinate
 
