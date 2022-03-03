@@ -8,7 +8,7 @@ library(leaflet)
 
 ames <- read.csv("data/housing_geolocation.csv")
 ames <- ames %>%
-  select("PID", "SalePrice", "latitude", "longitude") %>%
+  select("PID", "SalePrice", "latitude", "longitude", "Neighborhood") %>%
   relocate(any_of(c("longitude", "latitude"))) %>%
   drop_na()  # we don't have lat/long for all PIDs
 
@@ -53,6 +53,13 @@ geom_point(data = ames,
            shape = 19, alpha = 0.7) +
   scale_color_gradient(low = "lightyellow", high = "darkred") +
   theme(legend.position = "right")
+
+## TODO get CollapsedNeighboor (max six types)
+# ggplot(data = ames, aes(shape = Collapsed_Neighborhood)) +
+#   geom_point(aes(x = longitude, y = latitude, color = SalePrice),
+#              alpha = 0.7) +
+#   scale_color_gradient(low = "lightyellow", high = "darkred") +
+#   theme(legend.position = "right")
 
 # Plot using leaflet
 # TODO bin SalePrice and pass it as color to addCircles
