@@ -5,6 +5,7 @@ library(lubridate)
 library(tsibble)
 library(fable)
 library(feasts)
+library(patchwork)
 
 
 #Acquire data 
@@ -38,13 +39,50 @@ avdata <- cldata %>% select(-c(MedPrice,StDev))
 meddata <- cldata %>% select(-c(AvPrice))
 avdata<- avdata %>% as_tsibble(key=Neighborhood, index = date) #Avdata is tidy, tsibble
 meddata <- meddata %>% as_tsibble(key=Neighborhood, index=date) #meddata is untidy tsibble
+
+#Naive plot
 avdata %>% ggplot()+geom_line(aes(x=date,y=AvPrice,color=Neighborhood))
 
 
 
 #Split by neighborhood and autoplot, Ranked by Average House Price 
 
+order$Neighborhood
 
+
+#Top 7
+upp<- avdata %>% filter(Neighborhood %in% c("NoRidge", "NridgHt", "StoneBr" ,"GrnHill" ,"Veenker" ,"Timber" , "Somerst")) %>% 
+  ggplot()+geom_line(aes(x=date,y=AvPrice,color=Neighborhood)) + 
+  labs(title = "Upper 7 Neighborhoods Average House Prices", y= "Average Price $")
+
+#TopMid 7
+umid<- avdata %>% filter(Neighborhood %in% c("ClearCr", "Crawfor", "CollgCr", "Blmngtn", "Greens",  "NWAmes" , "Gilbert")) %>%
+  ggplot()+geom_line(aes(x=date,y=AvPrice,color=Neighborhood)) + 
+  labs(title = "Upper-Middle 7 Neighborhoods Average House Prices", y= "Average Price $")
+
+#BottomMid 7
+lmid<- avdata %>% filter(Neighborhood %in% c("SawyerW", "Mitchel", "NAmes",   "Blueste", "NPkVill" ,"Sawyer" , "Landmrk" )) %>% 
+  ggplot()+geom_line(aes(x=date,y=AvPrice,color=Neighborhood)) + 
+  labs(title = "Lower-Middle 7 Neighborhoods Average House Prices", y= "Average Price $")
+
+#Bottom 7 
+low <- avdata %>% filter(Neighborhood %in% c("SWISU","Edwards" ,"OldTown", "BrkSide", "IDOTRR",  "BrDale",  "MeadowV")) %>% 
+  ggplot()+geom_line(aes(x=date,y=AvPrice,color=Neighborhood)) + 
+  labs(title = "Lower 7 Neighborhoods Average House Prices", y= "Average Price $")
+
+
+plot1<- (upp | umid) / (lmid | low)
+plot1
+
+
+
+
+
+
+
+
+
+#Individual Neighborhoods
 #NoRidge
 noridge <- avdata %>% filter(Neighborhood=="NoRidge") %>% select(-c(Neighborhood))
 autoplot(noridge, AvPrice) + 
