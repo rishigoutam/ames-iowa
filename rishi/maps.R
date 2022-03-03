@@ -6,16 +6,16 @@ library(ggmap)
 library(RgoogleMaps)
 library(leaflet)
 
-ames <- read.csv("data/housing_geolocation.csv")
+ames <- read.csv("data/engineered.csv")
 ames <- ames %>%
-  select("PID", "SalePrice", "latitude", "longitude", "Neighborhood") %>%
+  select("PID", "SalePrice", "LogSalePrice", "latitude", "longitude", "Neighborhood") %>%
   relocate(any_of(c("longitude", "latitude"))) %>%
   drop_na()  # we don't have lat/long for all PIDs
 
 length(ames$PID)
 
-# Plot using usmap
-# Story county, Iowa FIPS code 19169
+# Using usmap
+# Story county, Iowa: FIPS code 19169
 ames_t <- usmap_transform(ames)
 plot_usmap("counties", include = c("IA")) +
   geom_point(data = ames_t,
@@ -46,12 +46,12 @@ center = c(mean(ames$latitude), mean(ames$longitude))
 terrmap <- GetMap(center=center, zoom=12, type= "satellite", destfile = "terr.png")
 PlotOnStaticMap(terrmap, lat = ames$latitude, lon = ames$longitude)
 
-# Plot using ggplot
+# Using ggplot
 ggplot() +
 geom_point(data = ames,
            aes(x = longitude, y = latitude, color = SalePrice),
-           shape = 19, alpha = 0.7) +
-  scale_color_gradient(low = "lightyellow", high = "darkred") +
+           shape = 19, alpha = 0.9) +
+  scale_color_gradient(low = "lightyellow", high = "darkblue") +
   theme(legend.position = "right")
 
 ## TODO get CollapsedNeighboor (max six types)
