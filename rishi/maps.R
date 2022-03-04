@@ -75,8 +75,6 @@ leaflet(ames) %>% addCircles() %>% addTiles()
 
 # Plot School Districts -----------------------------------------------------
 
-
-
 # Districts alone
 ggplot() +
   # Districts
@@ -130,3 +128,4 @@ plot_feature_on_districts <- function(feature, title, label_title) {
 plot_feature_on_districts(ames$SalePrice, "Property Sale Prices (2006-2010)", "Sale Price")
 plot_feature_on_districts(ames$Combine_Age, "Time Since Renovation", "Years")
 plot_feature_on_districts(ames$YearBuilt, "Year Built", "Year")
+
