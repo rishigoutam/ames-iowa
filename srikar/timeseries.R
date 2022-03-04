@@ -443,3 +443,36 @@ avdata %>% ggplot()+geom_line(aes(x=DateSold,y=AvPrice,color=IsRenovated))
 conv <- data %>% group_by(month(DateSold), IsRenovated) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
   arrange(desc(AvPrice)) #####Should I use Median or Average here? 
 conv %>% ggplot() +geom_line(aes(x=`month(DateSold)`, y=AvPrice, color=IsRenovated))
+
+
+
+
+
+
+
+
+
+
+'_______compiled is GOOD, shows seasons________Same Process, just for district  instead'
+"Otherwise not very good--high variance" 
+"Something insteresting at month10--OCT, and 9-10 Sept--Price is very high then very low" 
+
+
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
+#Make Tidy average data frames 
+#First get neighborhood and price columns, along with sale date
+data <- data %>% select(DateSold, district , SalePrice)
+data$district <- as.factor(data$district)
+order11 <- data %>% group_by(district) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order11)
+cldata <- data %>% group_by(district, DateSold) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+avdata<- avdata %>% as_tsibble(key=district, index = DateSold) #Avdata is tidy, tsibble
+avdata %>% ggplot()+geom_line(aes(x=DateSold,y=AvPrice,color=district))
+conv <- data %>% group_by(month(DateSold), district) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(DateSold)`, y=AvPrice, color=district))
+
