@@ -18,7 +18,7 @@ ordinal = list(__ordinal.union(__collapse_ordinal).union(__combine_ordinal))
 
 # TODO create more based on R^2. We want to create features only if we will use them
 __collapse_categorical = {'Collapse_MSSubClass'}
-__combine_categorical = set()
+__combine_categorical = {'district'}
 __categorical = {'MSSubClass', 'MSZoning',
                'LandContour', 'LotConfig', 'Neighborhood',
                'Condition1', 'Condition2', 'BldgType', 'HouseStyle',
