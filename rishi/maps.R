@@ -10,13 +10,10 @@ library(sf)
 library(scales)
 
 # Read data and select columns ---------------------------------------------
-ames <- read.csv("data/engineered.csv")
 ames_locations <- read.csv("data/ames_locations.csv")
+
+ames <- read.csv("data/engineered.csv")
 ames <- ames %>%
-  select("PID",
-         "SalePrice", "LogSalePrice",
-         "latitude", "longitude",
-         "Neighborhood", "Combine_Age", "YearBuilt") %>%
   relocate(any_of(c("longitude", "latitude"))) %>%
   drop_na()  # we don't have lat/long for all PIDs
 
@@ -73,7 +70,7 @@ geom_point(data = ames,
 leaflet(ames) %>% addCircles() %>% addTiles()
 
 
-# Plot School Districts -----------------------------------------------------
+# Plot on School Districts ---------------------------------------------------
 
 # Districts alone
 ggplot() +
@@ -125,7 +122,37 @@ plot_feature_on_districts <- function(feature, title, label_title) {
     ylab("Latitude")
 }
 
+# Overlay categorical feature on Districts
+plot_cat_feature_on_districts <- function(feature, title, label_title) {
+  # Set level/shape for institution type (Type column)
+  institution_levels = c("Preschool", "Elementary", "Middle School", "High School", "University", "Hospital")
+  institution_shapes = c(18, 20, 17, 15, 14, 3)
+  ames_locations$Type <- factor(ames_locations$Type, levels = institution_levels)
+
+  ggplot() +
+    # Districts
+    geom_sf(data = ames_school_districts_sf,
+            fill = factor(ames_school_districts_sf$fill_color)) +
+    # Properties
+    geom_point(data = ames,
+               aes(x = longitude, y = latitude, color = feature),
+               alpha = 0.8) +
+    theme(legend.position = "right") +
+    labs(title = title, color = label_title) +
+    xlab("Longitude") +
+    ylab("Latitude")
+}
+
+# Numerical features
 plot_feature_on_districts(ames$SalePrice, "Property Sale Prices (2006-2010)", "Sale Price")
 plot_feature_on_districts(ames$Combine_Age, "Time Since Renovation", "Years")
 plot_feature_on_districts(ames$YearBuilt, "Year Built", "Year")
 
+# Categorical features
+plot_cat_feature_on_districts(ames$MSZoning, "Zone", "Zone")
+plot_cat_feature_on_districts(ames$IsPUD, "PUD", "PUD")
+plot_cat_feature_on_districts(ames$LandContour, "Land Contour", "Land Contour")
+plot_cat_feature_on_districts(ames$IsNearNegativeCondition, "Near Roads of Railways", "Near Roads of Railways")
+plot_cat_feature_on_districts(ames$LandContour, "Land Contour", "Land Contour")
+plot_cat_feature_on_districts(ames$Collapse_MSSubClass, "Subclass", "Subclass")
+plot_cat_feature_on_districts(ames$district, "district", "district")
