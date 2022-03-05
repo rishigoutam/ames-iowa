@@ -276,7 +276,7 @@ def get_pud_indicator(mssubclass: str):
     :param mssubclass: the dwelling type of the property
     :return: whether the property is in a PUD
     """
-    return 'PUD' in MSSubClass[mssubclass]
+    return 1 if 'PUD' in MSSubClass[mssubclass] else 0
 
 
 def get_num_floors(mssubclass: str):
