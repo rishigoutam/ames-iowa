@@ -145,7 +145,36 @@ LotConfig (Inside / Corner / CulDSac / FR2 / FR3): Lot configuration
 We will categorise in order of desirability (4 being most desirable): 0, 1, 2, 3, 4
 
 Neighborhood (): Physical locations within Ames city limits
-One of the most significant categories.
+One of the most significant categories. We will create a new neighborhood category, alongside original, that is an ordered int factor (based on EDA results):
+Neighborhood_Int - 0, 1, 2, ..., 25, 26, 27
+(MeadowV
+BrDale
+IDOTRR
+BrkSide
+OldTown
+Edwards
+SWISU
+Landmrk
+Sawyer
+NPkVill
+Blueste
+NAmes
+Mitchel
+SawyerW
+Gilbert
+NWAmes
+Greens
+Blmngtn
+CollgCr
+Crawfor
+ClearCr
+Somerst
+Timber
+Veenker
+GrnHill
+StoneBr
+NridgHt
+NoRidge)
 
 Condition1 (Norm / Feedr / Artery / RRAn / RRNn / RRAe / RRNe / PosA / PosN): Proximity to various conditions
 Condition2 (Norm / Feedr / Artery / RRAn / RRNn / RRAe / RRNe / PosA / PosN): Proximity to various conditions (if more than one is present)
@@ -286,6 +315,45 @@ df_cleaned$IsNearPark = factor(df_cleaned$IsNearPark, levels = c(0, 1), ordered 
 
 df_cleaned = select(df_cleaned, -c(Condition1,Condition2))
 
+#11 Creation of Neighborhood_Int as ordered int factor
+
+df_cleaned$Neighborhood_Int = as.integer(0)
+
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "MeadowV"] = as.integer(0)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "BrDale"] = as.integer(1)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "IDOTRR"] = as.integer(2)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "BrkSide"] = as.integer(3)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "OldTown"] = as.integer(4)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "Edwards"] = as.integer(5)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "SWISU"] = as.integer(6)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "Landmrk"] = as.integer(7)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "Sawyer"] = as.integer(8)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "NPkVill"] = as.integer(9)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "Blueste"] = as.integer(10)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "NAmes"] = as.integer(11)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "Mitchel"] = as.integer(12)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "SawyerW"] = as.integer(13)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "Gilbert"] = as.integer(14)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "NWAmes"] = as.integer(15)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "Greens"] = as.integer(16)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "Blmngtn"] = as.integer(17)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "CollgCr"] = as.integer(18)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "Crawfor"] = as.integer(19)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "ClearCr"] = as.integer(20)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "Somerst"] = as.integer(21)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "Timber"] = as.integer(22)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "Veenker"] = as.integer(23)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "GrnHill"] = as.integer(24)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "StoneBr"] = as.integer(25)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "NridgHt"] = as.integer(26)
+df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "NoRidge"] = as.integer(27)
+
+df_cleaned$Neighborhood_Int = as.factor(df_cleaned$Neighborhood_Int)
+
+df_cleaned$Neighborhood_Int = factor(df_cleaned$Neighborhood_Int, levels = 0:27, ordered = TRUE)
+
+# Relocate columns for tidyness
+
 df_cleaned = df_cleaned %>%
   relocate(LotArea, .after = Rate) %>%
   relocate(Neighborhood, .after = GrLivArea) %>%
@@ -298,7 +366,8 @@ df_cleaned = df_cleaned %>%
   relocate(LotShape, .after = Neighborhood) %>%  
   relocate(StreetAlley, .after = Neighborhood) %>%    
   relocate(RemodSinceBuilt, .after = Neighborhood) %>%   
-  relocate(Age, .after = Neighborhood)
+  relocate(Age, .after = Neighborhood) %>%
+  relocate(Neighborhood_Int, .after = Neighborhood)
 
 head(df_cleaned)
 
@@ -323,7 +392,7 @@ Will also merge my other engineered features, and will make changes to the featu
 # Extract subset of columns from df_cleaned for insertion into df_engineered
 
 df_temp = df_cleaned %>%
-  select(PID, DateSold, Rate, logSalePrice, IsOnMainroad, IsNearPark, IsNearRailroad, LotConfig, LandSlope, LandContour, LotShape, StreetAlley, RemodSinceBuilt, Age)
+  select(PID, DateSold, Rate, logSalePrice, IsOnMainroad, IsNearPark, IsNearRailroad, LotConfig, LandSlope, LandContour, LotShape, StreetAlley, RemodSinceBuilt, Age, Neighborhood_Int)
 
 # Delete unnecessary columns from df_engineered
 
@@ -348,7 +417,8 @@ df_engineered = df_engineered %>%
   relocate(LotShape, .after = Neighborhood) %>%  
   relocate(StreetAlley, .after = Neighborhood) %>%    
   relocate(RemodSinceBuilt, .after = Neighborhood) %>%   
-  relocate(Age, .after = Neighborhood)
+  relocate(Age, .after = Neighborhood) %>%
+  relocate(Neighborhood_Int, .after = Neighborhood)
   
 df_engineered =  df_engineered %>%
   arrange(ymd(df_engineered$DateSold), SalePrice)
@@ -426,8 +496,6 @@ ggsave("fig2-3.pdf")
 
 
 #2 Neighbourhood
-
-#cor.result_2 = cor.test(as.integer(df_cleaned$Neighbourhood), df_cleaned$SalePrice, method=c("pearson"))
 
 fig4 = ggplot(df_cleaned, aes(x = reorder(Neighborhood, SalePrice), y = SalePrice, fill=Neighborhood)) +
         geom_boxplot() +
