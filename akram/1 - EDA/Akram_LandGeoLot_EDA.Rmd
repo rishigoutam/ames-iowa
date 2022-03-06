@@ -384,8 +384,8 @@ Exploratory Data Analysis:
 
 #1 LotArea
 
-cat("mean(LotArea) = ", mean(df_cleaned$LotArea), "\n") 
-cat("sd(LotArea) = ", sd(df_cleaned$LotArea), "\n")
+mean_1 = mean(df_cleaned$LotArea)
+sd_1 = sd(df_cleaned$LotArea)
 
 fig2 = ggscatter(df_cleaned, x = "LotArea", y = "SalePrice", 
           #add = "reg.line", conf.int = TRUE, 
@@ -395,7 +395,13 @@ fig2 = ggscatter(df_cleaned, x = "LotArea", y = "SalePrice",
           xtickslab.rt = 45,
           xlab = "Lot Area (sq feet)", ylab = "SalePrice (USD)") +
         theme(axis.text = element_text(face="bold")) +
-        theme(axis.title = element_text(face="bold"))
+        theme(axis.title = element_text(face="bold"))  + annotate(geom = "text", label = paste("Mean = ", signif(mean_1,4), "\nStandard Dev = ", signif(sd_1,4)),
+           x = 7.4e4,
+           y = 6e5,
+           angle = 0,
+           hjust=0,
+           #colour = "blue",
+           fontface =2)
 
 fig3 = ggscatter(df_cleaned, x = "LotArea", y = "logSalePrice", 
           add = "reg.line", conf.int = TRUE, 
@@ -406,7 +412,13 @@ fig3 = ggscatter(df_cleaned, x = "LotArea", y = "logSalePrice",
           xlab = "Lot Area (sq feet)", ylab = "log(SalePrice)",
           xlim = c(0,30000), ylim=c(4,6.25)) +
         theme(axis.text = element_text(face="bold")) +
-        theme(axis.title = element_text(face="bold"))
+        theme(axis.title = element_text(face="bold"))# + annotate(geom = "text", label = paste("Mean = ", signif(mean_1,2), "\nStandard Dev = ", signif(sd_1,2)),
+#           x = 2.4,
+#           y = 5e5,
+#           angle = 0,
+#           hjust=0,
+#           #colour = "blue",
+#           fontface =2)
 
 fig2 + fig3
 
@@ -414,6 +426,8 @@ ggsave("fig2-3.pdf")
 
 
 #2 Neighbourhood
+
+#cor.result_2 = cor.test(as.integer(df_cleaned$Neighbourhood), df_cleaned$SalePrice, method=c("pearson"))
 
 fig4 = ggplot(df_cleaned, aes(x = reorder(Neighborhood, SalePrice), y = SalePrice, fill=Neighborhood)) +
         geom_boxplot() +
@@ -427,8 +441,8 @@ ggsave("fig4.pdf")
 
 #3 RemodSinceBuilt
 
-cat("mean(RemodSinceBuilt) = ", mean(df_cleaned$RemodSinceBuilt), "\n") 
-cat("sd(RemodSinceBuilt) = ", sd(df_cleaned$RemodSinceBuilt), "\n")
+mean_3 = mean(df_cleaned$RemodSinceBuilt)
+sd_3 = sd(df_cleaned$RemodSinceBuilt)
 
 fig5 = ggscatter(df_cleaned, x = "RemodSinceBuilt", y = "logSalePrice", 
           add = "reg.line", conf.int = TRUE, 
@@ -437,7 +451,13 @@ fig5 = ggscatter(df_cleaned, x = "RemodSinceBuilt", y = "logSalePrice",
           cor.coef.coord = c(0,4.25),
           xtickslab.rt = 45,
           xlab = "Period Between Remodel and Build Date (years)", ylab = "SalePrice (USD)")         + theme(axis.text = element_text(face="bold")) +
-          theme(axis.title = element_text(face="bold"))
+          theme(axis.title = element_text(face="bold")) + annotate(geom = "text", label = paste("Mean = ", signif(mean_3,4), "\nStandard Dev = ", signif(sd_3,4)),
+           x = 80,
+           y = 4.33,
+           angle = 0,
+           hjust=0,
+           #colour = "blue",
+           fontface =2)
 
 fig5
 
@@ -445,8 +465,8 @@ ggsave("fig5.pdf")
 
 #4 Age
 
-cat("mean(Age) = ", mean(df_cleaned$Age), "\n") 
-cat("sd(Age) = ", sd(df_cleaned$Age), "\n")
+mean_4 = mean(df_cleaned$Age)
+sd_4 = sd(df_cleaned$Age)
 
 fig6 = ggscatter(df_cleaned, x = "Age", y = "logSalePrice", 
           add = "reg.line", conf.int = TRUE, 
@@ -456,7 +476,13 @@ fig6 = ggscatter(df_cleaned, x = "Age", y = "logSalePrice",
           xtickslab.rt = 45,
           xlab = "Age (years)", ylab = "SalePrice (USD)")  +
         theme(axis.text = element_text(face="bold")) +
-        theme(axis.title = element_text(face="bold"))
+        theme(axis.title = element_text(face="bold")) + annotate(geom = "text", label = paste("Mean = ", signif(mean_4,4), "\nStandard Dev = ", signif(sd_4,4)),
+           x = 80,
+           y = 4.33,
+           angle = 0,
+           hjust=0,
+           #colour = "blue",
+           fontface =2)
 
 fig6
 
@@ -464,13 +490,21 @@ ggsave("fig6.pdf")
 
 #5 StreetAlley
 
+cor.result_5 = cor.test(as.integer(df_cleaned$StreetAlley), df_cleaned$SalePrice, method=c("pearson"))
+
 fig7 = ggplot(df_cleaned, aes(x = reorder(StreetAlley, SalePrice), y = SalePrice, fill=StreetAlley)) +
         geom_boxplot() +
         labs(x="StreetAlley") +
         coord_flip() +
         stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.75,0.4)) + scale_fill_discrete(labels = c("Gravel / NoAlley (0)", "Paved / NoAlley (1)", "Paved / Gravel (2)", "Paved / Paved (3)"))  +
         theme(axis.text = element_text(face="bold")) +
-        theme(axis.title = element_text(face="bold"))
+        theme(axis.title = element_text(face="bold")) + annotate(geom = "text", label = paste("R = ", signif(cor.result_6$estimate,2), "\np-value = ", signif(cor.result_6$p.value,2)),
+           x = 0.9,
+           y = 4.1e5,
+           angle = 0,
+           hjust=0,
+           colour = "blue",
+           fontface =2)
         
 fig7
 
@@ -478,13 +512,21 @@ ggsave("fig7.pdf")
 
 #6 LotShape
 
+cor.result_6 = cor.test(as.integer(df_cleaned$LotShape), df_cleaned$SalePrice, method=c("pearson"))
+
 fig8 = ggplot(df_cleaned, aes(x = reorder(LotShape, SalePrice), y = SalePrice, fill=LotShape)) +
         geom_boxplot() +
         labs(x="Lot Shape") +
         coord_flip() +
         stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.87,0.62)) + scale_fill_discrete(labels = c("Regular (0)", "Irregular1 (1)", "Irregular2 (2)", "Irregular3 (3)")) +
         theme(axis.text = element_text(face="bold")) +
-        theme(axis.title = element_text(face="bold"))
+        theme(axis.title = element_text(face="bold")) + annotate(geom = "text", label = paste("R = ", signif(cor.result_6$estimate,2), "\np-value = ", signif(cor.result_6$p.value,2)),
+           x = 1.5,
+           y = 5e5,
+           angle = 0,
+           hjust=0,
+           colour = "blue",
+           fontface =2)
         
 fig8
 
@@ -492,13 +534,21 @@ ggsave("fig8.pdf")
 
 #7 LandContour
 
+cor.result_7 = cor.test(as.integer(df_cleaned$LandContour), df_cleaned$SalePrice, method=c("pearson"))
+
 fig9 = ggplot(df_cleaned, aes(x = reorder(LandContour, SalePrice), y = SalePrice, fill=LandContour)) +
         geom_boxplot() +
         labs(x="Land Contour") +
         coord_flip() +
         stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.87,0.62)) + scale_fill_discrete(labels = c("Low (0)", "Level (1)", "Banked (2)", "Hillside (3)")) +
         theme(axis.text = element_text(face="bold")) +
-        theme(axis.title = element_text(face="bold"))
+        theme(axis.title = element_text(face="bold")) + annotate(geom = "text", label = paste("R = ", signif(cor.result_7$estimate,2), "\np-value = ", signif(cor.result_7$p.value,2)),
+           x = 1.5,
+           y = 5e5,
+           angle = 0,
+           hjust=0,
+           colour = "blue",
+           fontface =2)
         
 fig9
 
@@ -506,12 +556,20 @@ ggsave("fig9.pdf")
 
 #8 LandSlope
 
+cor.result_8 = cor.test(as.integer(df_cleaned$LandSlope), df_cleaned$SalePrice, method=c("pearson"))
+
 fig10 = ggplot(df_cleaned, aes(x = reorder(LandSlope, SalePrice), y = SalePrice, fill=LandSlope)) +
         geom_boxplot() +
         labs(x="Land Slope") +
         coord_flip() +
         stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black")       + theme(legend.position = c(0.842,0.75)) + scale_fill_discrete(labels = c("Gentle (0)", "Moderate (1)", "Severe (2)")) + theme(axis.text = element_text(face="bold")) +
-        theme(axis.title = element_text(face="bold"))
+        theme(axis.title = element_text(face="bold")) + annotate(geom = "text", label = paste("R = ", signif(cor.result_8$estimate,2), "\np-value = ", signif(cor.result_8$p.value,2)),
+           x = 1.5,
+           y = 5e5,
+           angle = 0,
+           hjust=0,
+           colour = "blue",
+           fontface =2)
         
 fig10
 
@@ -519,13 +577,21 @@ ggsave("fig10.pdf")
 
 #9 LotConfig
 
+cor.result_9 = cor.test(as.integer(df_cleaned$LotConfig), df_cleaned$SalePrice, method=c("pearson"))
+
 fig11 = ggplot(df_cleaned, aes(x = reorder(LotConfig, SalePrice), y = SalePrice, fill=LotConfig)) +
         geom_boxplot() +
         labs(x="Lot Configuration") +
         coord_flip() +
         stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.87,0.6)) + scale_fill_discrete(labels = c("2-Side Frontage (0)", "Inside Lot (1)", "Corner Lot (2)", "3-Side Frontage (3)", "Cul De Sac (4)")) +
         theme(axis.text = element_text(face="bold")) +
-        theme(axis.title = element_text(face="bold"))
+        theme(axis.title = element_text(face="bold")) + annotate(geom = "text", label = paste("R = ", signif(cor.result_9$estimate,2), "\np-value = ", signif(cor.result_9$p.value,2)),
+           x = 1.4,
+           y = 5e5,
+           angle = 0,
+           hjust=0,
+           colour = "blue",
+           fontface =2)
         
 fig11
 
@@ -533,11 +599,19 @@ ggsave("fig11.pdf")
 
 #10 IsOnMainroad
 
+cor.result_10 = cor.test(as.integer(df_cleaned$IsOnMainroad), df_cleaned$SalePrice, method=c("pearson"))
+
 fig12 = ggplot(df_cleaned, aes(x = reorder(IsOnMainroad, SalePrice), y = SalePrice, fill=IsOnMainroad)) +
         geom_boxplot() +
         labs(x="Is On Mainroad?") +
         coord_flip() +
-        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black")       + theme(legend.position = c(0.842,0.5)) + scale_fill_discrete(labels = c("No (0)", "Yes (1)")) + theme(axis.text = element_text(face="bold")) + theme(axis.title = element_text(face="bold"))
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black")       + theme(legend.position = c(0.842,0.5)) + scale_fill_discrete(labels = c("No (0)", "Yes (1)")) + theme(axis.text = element_text(face="bold")) + theme(axis.title = element_text(face="bold")) + annotate(geom = "text", label = paste("R = ", signif(cor.result_10$estimate,2), "\np-value = ", signif(cor.result_10$p.value,2)),
+           x = 2.4,
+           y = 5e5,
+           angle = 0,
+           hjust=0,
+           colour = "blue",
+           fontface =2)
         
 fig12
 
@@ -545,11 +619,19 @@ ggsave("fig12.pdf")
 
 #11 IsNearRailroad
 
+cor.result_11 = cor.test(as.integer(df_cleaned$IsNearRailroad), df_cleaned$SalePrice, method=c("pearson"))
+
 fig13 = ggplot(df_cleaned, aes(x = reorder(IsNearRailroad, SalePrice), y = SalePrice, fill=IsNearRailroad)) +
         geom_boxplot() +
         labs(x="Is Near Railroad?") +
         coord_flip() +
-        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black")       + theme(legend.position = c(0.842,0.5)) + scale_fill_discrete(labels = c("No (0)", "Yes (1)")) + theme(axis.text = element_text(face="bold")) + theme(axis.title = element_text(face="bold"))
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black")       + theme(legend.position = c(0.842,0.5)) + scale_fill_discrete(labels = c("No (0)", "Yes (1)")) + theme(axis.text = element_text(face="bold")) + theme(axis.title = element_text(face="bold")) + annotate(geom = "text", label = paste("R = ", signif(cor.result_11$estimate,2), "\np-value = ", signif(cor.result_11$p.value,2)),
+           x = 2.4,
+           y = 5e5,
+           angle = 0,
+           hjust=0,
+           colour = "blue",
+           fontface =2)
         
 fig13
 
@@ -557,19 +639,28 @@ ggsave("fig13.pdf")
 
 #12 IsNearPark
 
-cor.test(as.integer(df_cleaned$IsNearPark), df_cleaned$SalePrice, method=c("pearson"))
+cor.result_12 = cor.test(as.integer(df_cleaned$IsNearPark), df_cleaned$SalePrice, method=c("pearson"))
 
 fig14 = ggplot(df_cleaned, aes(x = reorder(IsNearPark, SalePrice), y = SalePrice, fill=IsNearPark)) +
         geom_boxplot() +
         labs(x="Is Near Park?") +
         coord_flip() +
-        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black")       + theme(legend.position = c(0.842,0.5)) + scale_fill_discrete(labels = c("No (0)", "Yes (1)")) + theme(axis.text = element_text(face="bold")) + theme(axis.title = element_text(face="bold"))
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black")       + theme(legend.position = c(0.842,0.5)) + scale_fill_discrete(labels = c("No (0)", "Yes (1)")) + theme(axis.text = element_text(face="bold")) + theme(axis.title = element_text(face="bold")) + annotate(geom = "text", label = paste("R = ", signif(cor.result_12$estimate,2), "\np-value = ", signif(cor.result_12$p.value,2)),
+           x = 2.4,
+           y = 5e5,
+           angle = 0,
+           hjust=0,
+           colour = "blue",
+           fontface =2)
         
 fig14
 
 ggsave("fig14.pdf")
 
 #13 Rate
+
+mean_13 = mean(df_cleaned$Rate)
+sd_13 = sd(df_cleaned$Rate)
 
 fig15 = ggscatter(df_cleaned, x = "Rate", y = "SalePrice", 
           add = "reg.line", conf.int = TRUE, 
@@ -579,7 +670,13 @@ fig15 = ggscatter(df_cleaned, x = "Rate", y = "SalePrice",
           xtickslab.rt = 45,
           xlab = "Interest Rate (%)", ylab = "SalePrice (USD)") +
         theme(axis.text = element_text(face="bold")) +
-        theme(axis.title = element_text(face="bold"))
+        theme(axis.title = element_text(face="bold")) + annotate(geom = "text", label = paste("Mean = ", signif(mean_13,2), "\nStandard Dev = ", signif(sd_13,2)),
+           x = 2.4,
+           y = 5e5,
+           angle = 0,
+           hjust=0,
+           #colour = "blue",
+           fontface =2)
 
 fig15
 
