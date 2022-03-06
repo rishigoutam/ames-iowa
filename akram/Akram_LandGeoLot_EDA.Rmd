@@ -407,22 +407,76 @@ ggsave("fig2-3.pdf")
 
 #2 Neighbourhood
 
-fig4 = ggplot(df_cleaned, aes(x = reorder(Neighborhood, SalePrice), y = SalePrice)) +
+fig4 = ggplot(df_cleaned, aes(x = reorder(Neighborhood, SalePrice), y = SalePrice, fill=Neighborhood)) +
         geom_boxplot() +
         labs(x="Neighborhood") +
-        coord_flip()
+        coord_flip() +
+        stat_summary(fun.y=mean, geom="point", shape=17, size=1, color="red", fill="black") + theme(legend.position = "none")
         
-
 fig4
 
+ggsave("fig4.pdf")
+
+#3 Age
+
+cat("mean(Age) = ", mean(df_cleaned$Age), "\n") 
+cat("sd(Age) = ", sd(df_cleaned$Age), "\n")
+
+fig5 = ggscatter(df_cleaned, x = "Age", y = "logSalePrice", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          size = 0.25, color = "blue",
+          cor.coef.coord = c(0,4.25),
+          xtickslab.rt = 45,
+          xlab = "Age (years)", ylab = "SalePrice (USD)")
+
+fig5
+
+ggsave("fig5.pdf")
+
+#4 YrsSinceRemod
+
+cat("mean(YrsSinceRemod) = ", mean(df_cleaned$YrsSinceRemod), "\n") 
+cat("sd(YrsSinceRemod) = ", sd(df_cleaned$YrsSinceRemod), "\n")
+
+fig6 = ggscatter(df_cleaned, x = "YrsSinceRemod", y = "logSalePrice", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          size = 0.25, color = "blue",
+          cor.coef.coord = c(0,4.25),
+          xtickslab.rt = 45,
+          xlab = "Period Since Remodel (years)", ylab = "SalePrice (USD)")
+
+fig6
+
+ggsave("fig6.pdf")
+
+#5 StreetAlley
+
+fig7 = ggplot(df_cleaned, aes(x = reorder(StreetAlley, SalePrice), y = SalePrice, fill=StreetAlley)) +
+        geom_boxplot() +
+        labs(x="StreetAlley") +
+        coord_flip() +
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.75,0.4)) + scale_fill_discrete(labels = c("Gravel / NoAlley (0)", "Paved / NoAlley (1)", "Paved / Gravel (2)", "Paved / Paved (3)"))
+        
+fig7
+
+ggsave("fig7.pdf")
+
+#6 LotShape
+
+fig8 = ggplot(df_cleaned, aes(x = reorder(LotShape, SalePrice), y = SalePrice, fill=LotShape)) +
+        geom_boxplot() +
+        labs(x="Lot Shape") +
+        coord_flip() +
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.87,0.62)) + scale_fill_discrete(labels = c("Regular (0)", "Irregular1 (1)", "Irregular2 (2)", "Irregular3 (3)"))
+        
+fig8
+
+ggsave("fig8.pdf")
 
 
 # cor.test(x, y, method=c("pearson", "kendall", "spearman"))
-
-#df_Crushed = filter(df_Summary, Commodity=="Crushed Stone, Sand and Gravel")
-
-#ggplot(df_Crushed, aes(x = Monthly_Carload, y = Index)) + 
-#  geom_point(aes(color = factor(Year)))
 
 ```
 
