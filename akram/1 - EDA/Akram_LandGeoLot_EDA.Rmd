@@ -19,7 +19,7 @@ library(ggcorrplot)
 library(corrplot)
 library(ggpubr)
 
-path = "~/Desktop/NYCDSA/Homework/Project3/Akram/EDA"
+path = "~/Desktop/NYCDSA/Homework/Project3/Akram/1 - EDA"
 setwd(path)
 
 ```
@@ -302,6 +302,8 @@ df_cleaned = df_cleaned %>%
 
 head(df_cleaned)
 
+write.csv(df_cleaned, "df_cleaned.csv")
+
 #df_4 = filter(df_cleaned, IsOnMainroad == "1")
 #df_4
 
@@ -352,6 +354,8 @@ df_engineered =  df_engineered %>%
   arrange(ymd(df_engineered$DateSold), SalePrice)
 
 head(df_engineered)
+
+write.csv(df_engineered, "df_engineered.csv")
 
 ```
 
@@ -552,6 +556,8 @@ fig13
 ggsave("fig13.pdf")
 
 #12 IsNearPark
+
+cor.test(as.integer(df_cleaned$IsNearPark), df_cleaned$SalePrice, method=c("pearson"))
 
 fig14 = ggplot(df_cleaned, aes(x = reorder(IsNearPark, SalePrice), y = SalePrice, fill=IsNearPark)) +
         geom_boxplot() +
