@@ -163,15 +163,15 @@ Feature Engineering for Land/Geography/Lot:
 
 df_cleaned = select(df_cleaned, -LotFrontage)
 
-#2 Construct Age and delete YearBuilt
+#2 Construct RemodSinceBuilt and delete YearRemodAdd
+
+df_cleaned$RemodSinceBuilt = as.integer(df_cleaned$YearRemodAdd - df_cleaned$YearBuilt)
+df_cleaned = select(df_cleaned, -YearRemodAdd)
+
+#3 Construct Age and delete YearBuilt
 
 df_cleaned$Age = as.integer(year(df_cleaned$DateSold) - df_cleaned$YearBuilt)
 df_cleaned = select(df_cleaned, -YearBuilt)
-
-#3 Construct YrsSinceRemod and delete YearRemodAdd
-
-df_cleaned$YrsSinceRemod = as.integer(year(df_cleaned$DateSold) - df_cleaned$YearRemodAdd)
-df_cleaned = select(df_cleaned, -YearRemodAdd)
 
 #4 Construct StreetAlley as ordered int factor and delete Street and Alley
 
@@ -250,11 +250,11 @@ df_cleaned = select(df_cleaned, -Utilities)
 
 df_cleaned$LotConfig_temp = as.integer(0)
 
-df_cleaned$LotConfig_temp[df_cleaned$LotConfig == "Inside"] = as.integer(0)
-df_cleaned$LotConfig_temp[df_cleaned$LotConfig == "Corner"] = as.integer(1)
-df_cleaned$LotConfig_temp[df_cleaned$LotConfig == "CulDSac"] = as.integer(2)
-df_cleaned$LotConfig_temp[df_cleaned$LotConfig == "FR2"] = as.integer(3)
-df_cleaned$LotConfig_temp[df_cleaned$LotConfig == "FR3"] = as.integer(4)
+df_cleaned$LotConfig_temp[df_cleaned$LotConfig == "FR2"] = as.integer(0)
+df_cleaned$LotConfig_temp[df_cleaned$LotConfig == "Inside"] = as.integer(1)
+df_cleaned$LotConfig_temp[df_cleaned$LotConfig == "Corner"] = as.integer(2)
+df_cleaned$LotConfig_temp[df_cleaned$LotConfig == "FR3"] = as.integer(3)
+df_cleaned$LotConfig_temp[df_cleaned$LotConfig == "CulDSac"] = as.integer(4)
 
 df_cleaned$LotConfig_temp = as.factor(df_cleaned$LotConfig_temp)
 
@@ -297,7 +297,7 @@ df_cleaned = df_cleaned %>%
   relocate(LandContour, .after = Neighborhood) %>%  
   relocate(LotShape, .after = Neighborhood) %>%  
   relocate(StreetAlley, .after = Neighborhood) %>%    
-  relocate(YrsSinceRemod, .after = Neighborhood) %>%   
+  relocate(RemodSinceBuilt, .after = Neighborhood) %>%   
   relocate(Age, .after = Neighborhood)
 
 head(df_cleaned)
@@ -321,7 +321,7 @@ Will also merge my other engineered features, and will make changes to the featu
 # Extract subset of columns from df_cleaned for insertion into df_engineered
 
 df_temp = df_cleaned %>%
-  select(PID, DateSold, Rate, logSalePrice, IsOnMainroad, IsNearPark, IsNearRailroad, LotConfig, LandSlope, LandContour, LotShape, StreetAlley, YrsSinceRemod, Age)
+  select(PID, DateSold, Rate, logSalePrice, IsOnMainroad, IsNearPark, IsNearRailroad, LotConfig, LandSlope, LandContour, LotShape, StreetAlley, RemodSinceBuilt, Age)
 
 # Delete unnecessary columns from df_engineered
 
@@ -345,7 +345,7 @@ df_engineered = df_engineered %>%
   relocate(LandContour, .after = Neighborhood) %>%  
   relocate(LotShape, .after = Neighborhood) %>%  
   relocate(StreetAlley, .after = Neighborhood) %>%    
-  relocate(YrsSinceRemod, .after = Neighborhood) %>%   
+  relocate(RemodSinceBuilt, .after = Neighborhood) %>%   
   relocate(Age, .after = Neighborhood)
   
 df_engineered =  df_engineered %>%
@@ -417,35 +417,35 @@ fig4
 
 ggsave("fig4.pdf")
 
-#3 Age
+#3 RemodSinceBuilt
+
+cat("mean(RemodSinceBuilt) = ", mean(df_cleaned$RemodSinceBuilt), "\n") 
+cat("sd(RemodSinceBuilt) = ", sd(df_cleaned$RemodSinceBuilt), "\n")
+
+fig5 = ggscatter(df_cleaned, x = "RemodSinceBuilt", y = "logSalePrice", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          size = 0.25, color = "blue",
+          cor.coef.coord = c(0,4.25),
+          xtickslab.rt = 45,
+          xlab = "Period Between Remodel and Build Date (years)", ylab = "SalePrice (USD)")
+
+fig5
+
+ggsave("fig5.pdf")
+
+#4 Age
 
 cat("mean(Age) = ", mean(df_cleaned$Age), "\n") 
 cat("sd(Age) = ", sd(df_cleaned$Age), "\n")
 
-fig5 = ggscatter(df_cleaned, x = "Age", y = "logSalePrice", 
+fig6 = ggscatter(df_cleaned, x = "Age", y = "logSalePrice", 
           add = "reg.line", conf.int = TRUE, 
           cor.coef = TRUE, cor.method = "pearson",
           size = 0.25, color = "blue",
           cor.coef.coord = c(0,4.25),
           xtickslab.rt = 45,
           xlab = "Age (years)", ylab = "SalePrice (USD)")
-
-fig5
-
-ggsave("fig5.pdf")
-
-#4 YrsSinceRemod
-
-cat("mean(YrsSinceRemod) = ", mean(df_cleaned$YrsSinceRemod), "\n") 
-cat("sd(YrsSinceRemod) = ", sd(df_cleaned$YrsSinceRemod), "\n")
-
-fig6 = ggscatter(df_cleaned, x = "YrsSinceRemod", y = "logSalePrice", 
-          add = "reg.line", conf.int = TRUE, 
-          cor.coef = TRUE, cor.method = "pearson",
-          size = 0.25, color = "blue",
-          cor.coef.coord = c(0,4.25),
-          xtickslab.rt = 45,
-          xlab = "Period Since Remodel (years)", ylab = "SalePrice (USD)")
 
 fig6
 
@@ -474,6 +474,42 @@ fig8 = ggplot(df_cleaned, aes(x = reorder(LotShape, SalePrice), y = SalePrice, f
 fig8
 
 ggsave("fig8.pdf")
+
+#7 LandContour
+
+fig9 = ggplot(df_cleaned, aes(x = reorder(LandContour, SalePrice), y = SalePrice, fill=LandContour)) +
+        geom_boxplot() +
+        labs(x="Land Contour") +
+        coord_flip() +
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.87,0.62)) + scale_fill_discrete(labels = c("Low (0)", "Level (1)", "Banked (2)", "Hillside (3)"))
+        
+fig9
+
+ggsave("fig9.pdf")
+
+#8 LandSlope
+
+fig10 = ggplot(df_cleaned, aes(x = reorder(LandSlope, SalePrice), y = SalePrice, fill=LandSlope)) +
+        geom_boxplot() +
+        labs(x="Land Slope") +
+        coord_flip() +
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.842,0.75)) + scale_fill_discrete(labels = c("Gentle (0)", "Moderate (1)", "Severe (2)"))
+        
+fig10
+
+ggsave("fig10.pdf")
+
+#9 LotConfig
+
+fig11 = ggplot(df_cleaned, aes(x = reorder(LotConfig, SalePrice), y = SalePrice, fill=LotConfig)) +
+        geom_boxplot() +
+        labs(x="Lot Configuration") +
+        coord_flip() +
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.87,0.6)) + scale_fill_discrete(labels = c("2-Side Frontage (0)", "Inside Lot (1)", "Corner Lot (2)", "3-Side Frontage (3)", "Cul De Sac (4)"))
+        
+fig11
+
+ggsave("fig9.pdf")
 
 
 # cor.test(x, y, method=c("pearson", "kendall", "spearman"))
