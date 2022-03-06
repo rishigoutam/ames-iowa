@@ -2,8 +2,7 @@ library(tidyverse)
 library(ggcorrplot)
 library(gtools)
 library(lubridate)
-library(tsibble)
-library(fable)
+library(fpp3)
 library(feasts)
 library(patchwork)
 
@@ -35,14 +34,29 @@ cldata <- data %>% group_by(Neighborhood, date) %>%
   summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
 #No StDev when only one house in paramater coordinate
 
+odata <- data %>% group_by(date) %>% summarise_at(vars(SalePrice), list(AvPrice = mean))
+
+
 avdata <- cldata %>% select(-c(MedPrice,StDev)) 
 meddata <- cldata %>% select(-c(AvPrice))
 avdata<- avdata %>% as_tsibble(key=Neighborhood, index = date) #Avdata is tidy, tsibble
 meddata <- meddata %>% as_tsibble(key=Neighborhood, index=date) #meddata is untidy tsibble
 
 #Naive plot
-avdata %>% ggplot()+geom_line(aes(x=date,y=AvPrice,color=Neighborhood))
+#noshow <- avdata %>% ggplot()+geom_line(aes(x=date,y=AvPrice,color=Neighborhood))
 
+
+
+#Convolution over all times (By Month)
+
+conv <- data %>% group_by(month(date), Neighborhood) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(date)`, y=AvPrice, color=Neighborhood))
+#
+
+
+
+chekcodata %>% ggplot()+ geom_line(aes(x=date,y=AvPrice))
 
 
 #Split by neighborhood and autoplot, Ranked by Average House Price 
@@ -54,304 +68,411 @@ order$Neighborhood
 upp<- avdata %>% filter(Neighborhood %in% c("NoRidge", "NridgHt", "StoneBr" ,"GrnHill" ,"Veenker" ,"Timber" , "Somerst")) %>% 
   ggplot()+geom_line(aes(x=date,y=AvPrice,color=Neighborhood)) + 
   labs(title = "Upper 7 Neighborhoods Average House Prices", y= "Average Price $")
+conv %>% filter(Neighborhood %in% c("NoRidge", "NridgHt", "StoneBr" ,"GrnHill" ,"Veenker" ,"Timber" , "Somerst")) %>%
+  ggplot() +geom_line(aes(x=`month(date)`, y=AvPrice, color=Neighborhood))+ 
+  labs(title = "Upper 7 Neighborhoods Convolved House Prices", y= "Average Price $")
+
+
 
 #TopMid 7
 umid<- avdata %>% filter(Neighborhood %in% c("ClearCr", "Crawfor", "CollgCr", "Blmngtn", "Greens",  "NWAmes" , "Gilbert")) %>%
   ggplot()+geom_line(aes(x=date,y=AvPrice,color=Neighborhood)) + 
   labs(title = "Upper-Middle 7 Neighborhoods Average House Prices", y= "Average Price $")
+conv %>% filter(Neighborhood %in% c("ClearCr", "Crawfor", "CollgCr", "Blmngtn", "Greens",  "NWAmes" , "Gilbert") )%>%
+  ggplot() +geom_line(aes(x=`month(date)`, y=AvPrice, color=Neighborhood))+
+  labs(title = "Upper-Middle 7 Neighborhoods Convolved House Prices", y= "Average Price $")
+
 
 #BottomMid 7
 lmid<- avdata %>% filter(Neighborhood %in% c("SawyerW", "Mitchel", "NAmes",   "Blueste", "NPkVill" ,"Sawyer" , "Landmrk" )) %>% 
   ggplot()+geom_line(aes(x=date,y=AvPrice,color=Neighborhood)) + 
   labs(title = "Lower-Middle 7 Neighborhoods Average House Prices", y= "Average Price $")
+conv %>% filter(Neighborhood %in% c("SawyerW", "Mitchel", "NAmes",   "Blueste", "NPkVill" ,"Sawyer" , "Landmrk" ))%>%
+  ggplot() +geom_line(aes(x=`month(date)`, y=AvPrice, color=Neighborhood))+
+  labs(title = "Lower-Middle 7 Neighborhoods Convolved House Prices", y= "Average Price $")
+
 
 #Bottom 7 
 low <- avdata %>% filter(Neighborhood %in% c("SWISU","Edwards" ,"OldTown", "BrkSide", "IDOTRR",  "BrDale",  "MeadowV")) %>% 
   ggplot()+geom_line(aes(x=date,y=AvPrice,color=Neighborhood)) + 
   labs(title = "Lower 7 Neighborhoods Average House Prices", y= "Average Price $")
+conv %>% filter(Neighborhood %in% c("SWISU","Edwards" ,"OldTown", "BrkSide", "IDOTRR",  "BrDale",  "MeadowV"))%>%
+  ggplot() +geom_line(aes(x=`month(date)`, y=AvPrice, color=Neighborhood))+
+  labs(title = "Lower 7 Neighborhoods Convolved House Prices", y= "Average Price $")
 
 
-plot1<- (upp | umid) / (lmid | low)
-plot1
 
+(upp | umid) / (lmid | low)
 
+##Need to do Neighborhoods Quarterly rather than monthly. 
 
 
 
+##Need to Group By Price Bracket of House
 
 
 
 
-#Individual Neighborhoods
-#NoRidge
-noridge <- avdata %>% filter(Neighborhood=="NoRidge") %>% select(-c(Neighborhood))
-autoplot(noridge, AvPrice) + 
-  labs(title = "NoRidge Average House Prices",
-       y= "Average Price $")
 
 
+'_______GOOD________Same Process, just for MS_SubClass instead'
 
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
+#Make Tidy average data frames 
+#First get neighborhood and price columns, along with sale date
+data$YrSold <- gsub("Yr_","", data$YrSold) #Clean date
+data <- data %>% select(YrSold, MoSold, Collapse_MSSubClass , SalePrice)
 
-#NridgHt
-nridght <- avdata %>% filter(Neighborhood=="NridgHt") %>% select(-c(Neighborhood))
-autoplot(nridght, AvPrice) + 
-  labs(title = "NridgHt Average House Prices",
-       y= "Average Price $")
+data$date <-paste(data$MoSold,sep="-", data$YrSold)
+data$date <-lubridate::my(data$date)
+data <- data %>% select(-c(YrSold,MoSold))
 
+order2 <- data %>% group_by(Collapse_MSSubClass) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order2)
 
+#Average over feature
+cldata <- data %>% group_by(Collapse_MSSubClass, date) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
 
-#StoneBr
-stonebr <- avdata %>% filter(Neighborhood=="StoneBr") %>% select(-c(Neighborhood))
-autoplot(stonebr, AvPrice) + 
-  labs(title = "StoneBr Average House Prices",
-       y= "Average Price $")
 
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+avdata<- avdata %>% as_tsibble(key=Collapse_MSSubClass, index = date) #Avdata is tidy, tsibble
 
 
+avdata %>% ggplot()+geom_line(aes(x=date,y=AvPrice,color=Collapse_MSSubClass))
+conv <- data %>% group_by(month(date), Collapse_MSSubClass) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(date)`, y=AvPrice, color=Collapse_MSSubClass))
 
-#GrnHill
-grnhill <- avdata %>% filter(Neighborhood=="GrnHill") %>% select(-c(Neighborhood))
-autoplot(grnhill, AvPrice) + 
-  labs(title = "GrnHill Average House Prices",
-       y= "Average Price $")
 
 
 
+'_______OKAY________Same Process, just for MS_Zoning instead'
+'RM/RL has interesting constancy, FV has trend but High Variance'
 
-#Veenker
-veenker <- avdata %>% filter(Neighborhood=="Veenker") %>% select(-c(Neighborhood))
-autoplot(veenker, AvPrice) + 
-  labs(title = "Veenker Average House Prices",
-       y= "Average Price $")
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
+#Make Tidy average data frames 
+#First get neighborhood and price columns, along with sale date
+data$YrSold <- gsub("Yr_","", data$YrSold) #Clean date
+data <- data %>% select(YrSold, MoSold, MSZoning , SalePrice)
+data$MSZoning <- as.factor(data$MSZoning)
+data$date <-paste(data$MoSold,sep="-", data$YrSold)
+data$date <-lubridate::my(data$date)
+data <- data %>% select(-c(YrSold,MoSold))
 
+order2 <- data %>% group_by(MSZoning) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order2)
 
+#Average over feature
+cldata <- data %>% group_by(MSZoning, date) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
 
-#Timber
 
-timber <- avdata %>% filter(Neighborhood=="Timber") %>% select(-c(Neighborhood))
-autoplot(timber, AvPrice) + 
-  labs(title = "Timber Average House Prices",
-       y= "Average Price $")
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+avdata<- avdata %>% as_tsibble(key=MS_Zoning, index = date) #Avdata is tidy, tsibble
 
 
+avdata %>% ggplot()+geom_line(aes(x=date,y=AvPrice,color=MSZoning))
+conv <- data %>% group_by(month(date), MSZoning) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(date)`, y=AvPrice, color=MSZoning))
 
 
-#Somerst
-somerst <- avdata %>% filter(Neighborhood=="Somerst") %>% select(-c(Neighborhood))
-autoplot(somerst, AvPrice) + 
-  labs(title = "Somerst Average House Prices",
-       y= "Average Price $")
 
+'______GREAT_________Same Process, just for Wealth_Bracket instead'
+"Look at the variance in the top quartile data"
 
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
 
+data <- data %>% mutate(quartile = ntile(SalePrice,4))
+data <- data %>% select(DateSold, quartile , SalePrice)
+data$quartile <- as.factor(data$quartile)
+#this should be obvious
+order3 <- data %>% group_by(quartile) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order3)
 
-#ClearCr
-clearcr <- avdata %>% filter(Neighborhood=="ClearCr") %>% select(-c(Neighborhood))
-autoplot(clearcr, AvPrice) + 
-  labs(title = "ClearCr Average House Prices",
-       y= "Average Price $")
+#Average over feature
+cldata <- data %>% group_by(quartile, DateSold) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+
+avdata<- avdata %>% as_tsibble(key=quartile, index = DateSold) #Avdata is tidy, tsibble
+avdata %>% ggplot()+geom_line(aes(x=DateSold,y=AvPrice,color=quartile))
+conv <- data %>% group_by(month(DateSold), quartile) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(DateSold)`, y=AvPrice, color=quartile))
+
+
+
+
 
+'_______OKAY________Same Process, just for LotShape instead'
+'lotshape 2 and 3 have the most stable patterns'
 
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
+#Make Tidy average data frames 
+#First get neighborhood and price columns, along with sale date
+data <- data %>% select(DateSold, LotShape , SalePrice)
+data$LotShape <- as.factor(data$LotShape)
 
 
-#Crawfor
-crawfor <- avdata %>% filter(Neighborhood=="Crawfor") %>% select(-c(Neighborhood))
-autoplot(crawfor, AvPrice) + 
-  labs(title = "Crawfor Average House Prices",
-       y= "Average Price $")
+order4 <- data %>% group_by(LotShape) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order4)
+
+cldata <- data %>% group_by(LotShape, DateSold) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+
+avdata<- avdata %>% as_tsibble(key=LotShape, index = DateSold) #Avdata is tidy, tsibble
+avdata %>% ggplot()+geom_line(aes(x=DateSold,y=AvPrice,color=LotShape))
+conv <- data %>% group_by(month(DateSold), LotShape) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(DateSold)`, y=AvPrice, color=LotShape))
 
 
 
 
-#CollgCr
-collgcr <- avdata %>% filter(Neighborhood=="CollgCr") %>% select(-c(Neighborhood))
-autoplot(collgcr, AvPrice) + 
-  labs(title = "CollgCr Average House Prices",
-       y= "Average Price $")
+'______OKAY_________Same Process, just for BldgType instead'
+'1fam duplex are most stable'
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
+#Make Tidy average data frames 
+#First get neighborhood and price columns, along with sale date
+data <- data %>% select(DateSold, BldgType , SalePrice)
+data$BldgType <- as.factor(data$BldgType)
+order5 <- data %>% group_by(BldgType) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order5)
+cldata <- data %>% group_by(BldgType, DateSold) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+avdata<- avdata %>% as_tsibble(key=BldgType, index = DateSold) #Avdata is tidy, tsibble
+avdata %>% ggplot()+geom_line(aes(x=DateSold,y=AvPrice,color=BldgType))
+conv <- data %>% group_by(month(DateSold), BldgType) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(DateSold)`, y=AvPrice, color=BldgType))
 
 
+
 
+'_______OKAY________Same Process, just for OverallQual instead'
+"Higher the Qual, Higher the Variance generally, "
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
+#Make Tidy average data frames 
+#First get neighborhood and price columns, along with sale date
+data <- data %>% select(DateSold, OverallQual , SalePrice)
+data$OverallQual <- as.factor(data$OverallQual)
+order6 <- data %>% group_by(OverallQual) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order6)
+cldata <- data %>% group_by(OverallQual, DateSold) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+avdata<- avdata %>% as_tsibble(key=OverallQual, index = DateSold) #Avdata is tidy, tsibble
+avdata %>% ggplot()+geom_line(aes(x=DateSold,y=AvPrice,color=OverallQual))
+conv <- data %>% group_by(month(DateSold), OverallQual) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(DateSold)`, y=AvPrice, color=OverallQual))
 
-#Blmngtn
-blmngtn <- avdata %>% filter(Neighborhood=="Blmngtn") %>% select(-c(Neighborhood))
-autoplot(blmngtn, AvPrice) + 
-  labs(title = "Blmngtn Average House Prices",
-       y= "Average Price $")
 
 
 
 
-#Greens
-greens <- avdata %>% filter(Neighborhood=="Greens") %>% select(-c(Neighborhood))
-autoplot(greens, AvPrice) + 
-  labs(title = "Greens Average House Prices",
-       y= "Average Price $")
+'______Not Bad_________Same Process, just for OverallCond instead'
+'Less of a split between ranks as there was with quality'
+'very odd behavior with high condition houses over time, price seems to drop'
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
+#Make Tidy average data frames 
+#First get neighborhood and price columns, along with sale date
+data <- data %>% select(DateSold, OverallCond , SalePrice)
+data$OverallCond <- as.factor(data$OverallCond)
+order7 <- data %>% group_by(OverallCond) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order7)
+cldata <- data %>% group_by(OverallCond, DateSold) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+avdata<- avdata %>% as_tsibble(key=OverallCond, index = DateSold) #Avdata is tidy, tsibble
+avdata %>% ggplot()+geom_line(aes(x=DateSold,y=AvPrice,color=OverallCond))
+conv <- data %>% group_by(month(DateSold), OverallCond) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(DateSold)`, y=AvPrice, color=OverallCond))
 
 
 
-#NWAmes
-nwames <- avdata %>% filter(Neighborhood=="NWAmes") %>% select(-c(Neighborhood))
-autoplot(nwames, AvPrice) + 
-  labs(title = "NWAmes Average House Prices",
-       y= "Average Price $")
 
 
 
-#Gilbert
-gilbert <- avdata %>% filter(Neighborhood=="Gilbert") %>% select(-c(Neighborhood))
-autoplot(gilbert, AvPrice) + 
-  labs(title = "Gilbert Average House Prices",
-       y= "Average Price $")
 
+'_____GOOD__________Same Process, just for Foundation  instead'
+"Pconc, cblock, brktil most stable with some exceptions"
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
+#Make Tidy average data frames 
+#First get neighborhood and price columns, along with sale date
+data <- data %>% select(DateSold, Foundation , SalePrice)
+data$Foundation <- as.factor(data$Foundation)
+order8 <- data %>% group_by(Foundation) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order8)
+cldata <- data %>% group_by(Foundation, DateSold) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+avdata<- avdata %>% as_tsibble(key=Foundation, index = DateSold) #Avdata is tidy, tsibble
+avdata %>% ggplot()+geom_line(aes(x=DateSold,y=AvPrice,color=Foundation))
+conv <- data %>% group_by(month(DateSold), Foundation) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(DateSold)`, y=AvPrice, color=Foundation))
 
 
 
 
-#SawyerW
-sawyerw <- avdata %>% filter(Neighborhood=="SawyerW") %>% select(-c(Neighborhood))
-autoplot(sawyerw, AvPrice) + 
-  labs(title = "SawyerW Average House Prices",
-       y= "Average Price $")
 
 
 
 
 
-#Mitchel
-mitchel <- avdata %>% filter(Neighborhood=="Mitchel") %>% select(-c(Neighborhood))
-autoplot(mitchel, AvPrice) + 
-  labs(title = "Mitchel Average House Prices",
-       y= "Average Price $")
+'_______Not Great________Same Process, just for GarageType  instead'
+"high variance for built in garages, attatched is nice to predict though"
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
+#Make Tidy average data frames 
+#First get neighborhood and price columns, along with sale date
+data <- data %>% select(DateSold, GarageType , SalePrice)
+data$GarageType <- as.factor(data$GarageType)
+order8 <- data %>% group_by(GarageType) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order8)
+cldata <- data %>% group_by(GarageType, DateSold) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+avdata<- avdata %>% as_tsibble(key=GarageType, index = DateSold) #Avdata is tidy, tsibble
+avdata %>% ggplot()+geom_line(aes(x=DateSold,y=AvPrice,color=GarageType))
+conv <- data %>% group_by(month(DateSold), GarageType) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(DateSold)`, y=AvPrice, color=GarageType))
 
 
 
 
 
 
-#NAmes
-names <- avdata %>% filter(Neighborhood=="NAmes") %>% select(-c(Neighborhood))
-autoplot(names, AvPrice) + 
-  labs(title = "NAmes Average House Prices",
-       y= "Average Price $")
 
+'_______Not Good________Same Process, just for Fence  instead'
+"Wayyy too much variance"
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
+#Make Tidy average data frames 
+#First get neighborhood and price columns, along with sale date
+data <- data %>% select(DateSold, Fence , SalePrice)
+data$Fence <- as.factor(data$Fence)
+order9 <- data %>% group_by(Fence) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order9)
+cldata <- data %>% group_by(Fence, DateSold) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+avdata<- avdata %>% as_tsibble(key=Fence, index = DateSold) #Avdata is tidy, tsibble
+avdata %>% ggplot()+geom_line(aes(x=DateSold,y=AvPrice,color=Fence))
+conv <- data %>% group_by(month(DateSold), Fence) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(DateSold)`, y=AvPrice, color=Fence))
 
 
 
 
 
-#Blueste
-blueste <- avdata %>% filter(Neighborhood=="Blueste") %>% select(-c(Neighborhood))
-autoplot(blueste, AvPrice) + 
-  labs(title = "Blueste Average House Prices",
-       y= "Average Price $")
 
 
 
+'______okay_________Same Process, just for MiscFeature  instead'
+'No Misc and Shed seem like most common but high variance'
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
+#Make Tidy average data frames 
+#First get neighborhood and price columns, along with sale date
+data <- data %>% select(DateSold, MiscFeature , SalePrice)
+data$MiscFeature <- as.factor(data$MiscFeature)
+order10 <- data %>% group_by(MiscFeature) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order10)
+cldata <- data %>% group_by(MiscFeature, DateSold) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+avdata<- avdata %>% as_tsibble(key=MiscFeature, index = DateSold) #Avdata is tidy, tsibble
+avdata %>% ggplot()+geom_line(aes(x=DateSold,y=AvPrice,color=MiscFeature))
+conv <- data %>% group_by(month(DateSold), MiscFeature) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(DateSold)`, y=AvPrice, color=MiscFeature))
 
 
 
-#NPkVill
-npkvill <- avdata %>% filter(Neighborhood=="NPkVill") %>% select(-c(Neighborhood))
-autoplot(npkvill, AvPrice) + 
-  labs(title = "NPkVill Average House Prices",
-       y= "Average Price $")
 
 
 
 
 
 
-#Sawyer
-sawyer <- avdata %>% filter(Neighborhood=="Sawyer") %>% select(-c(Neighborhood))
-autoplot(sawyer, AvPrice) + 
-  labs(title = "Sawyer Average House Prices",
-       y= "Average Price $")
 
+'_______compiled is good, shows seasons________Same Process, just for IsRenovated  instead'
+"Otherwise not very good--high variance"
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
+#Make Tidy average data frames 
+#First get neighborhood and price columns, along with sale date
+data <- data %>% select(DateSold, IsRenovated , SalePrice)
+data$IsRenovated <- as.factor(data$IsRenovated)
+order11 <- data %>% group_by(IsRenovated) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order11)
+cldata <- data %>% group_by(IsRenovated, DateSold) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+avdata<- avdata %>% as_tsibble(key=IsRenovated, index = DateSold) #Avdata is tidy, tsibble
+avdata %>% ggplot()+geom_line(aes(x=DateSold,y=AvPrice,color=IsRenovated))
+conv <- data %>% group_by(month(DateSold), IsRenovated) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(DateSold)`, y=AvPrice, color=IsRenovated))
 
 
 
 
 
-#Landmrk
-landmrk <- avdata %>% filter(Neighborhood=="Landmrk") %>% select(-c(Neighborhood))
-autoplot(landmrk, AvPrice) + 
-  labs(title = "Landmrk Average House Prices",
-       y= "Average Price $")
 
 
 
 
 
+'_______compiled is GOOD, shows seasons________Same Process, just for district  instead'
+"Otherwise not very good--high variance" 
+"Something insteresting at month10--OCT, and 9-10 Sept--Price is very high then very low" 
 
-#SWISU
-swisu <- avdata %>% filter(Neighborhood=="SWISU") %>% select(-c(Neighborhood))
-autoplot(swisu, AvPrice) + 
-  labs(title = "Mitchel Average House Prices",
-       y= "Average Price $")
 
-
-
-
-
-
-#Edwards
-edwards <- avdata %>% filter(Neighborhood=="Edwards") %>% select(-c(Neighborhood))
-autoplot(edwards, AvPrice) + 
-  labs(title = "Edwards Average House Prices",
-       y= "Average Price $")
-
-
-
-
-
-
-#OldTown
-oldtown <- avdata %>% filter(Neighborhood=="OldTown") %>% select(-c(Neighborhood))
-autoplot(oldtown, AvPrice) + 
-  labs(title = "OldTown Average House Prices",
-       y= "Average Price $")
-
-
-
-
-
-
-#BrkSide
-brkside <- avdata %>% filter(Neighborhood=="BrkSide") %>% select(-c(Neighborhood))
-autoplot(brkside, AvPrice) + 
-  labs(title = "BrkSide Average House Prices",
-       y= "Average Price $")
-
-
-
-
-
-
-#IDOTRR
-idotrr <- avdata %>% filter(Neighborhood=="IDOTRR") %>% select(-c(Neighborhood))
-autoplot(idotrr, AvPrice) + 
-  labs(title = "IDOTRR Average House Prices",
-       y= "Average Price $")
-
-
-
-
-
-
-#BrDale
-brdale <- avdata %>% filter(Neighborhood=="BrDale") %>% select(-c(Neighborhood))
-autoplot(brdale, AvPrice) + 
-  labs(title = "BrDale Average House Prices",
-       y= "Average Price $")
-
-
-
-
-
-
-#MeadowV
-meadowv <- avdata %>% filter(Neighborhood=="MeadowV") %>% select(-c(Neighborhood))
-autoplot(meadowv, AvPrice) + 
-  labs(title = "MeadowV Average House Prices",
-       y= "Average Price $")
+data <- read_csv("../data/engineered.csv")
+data <- data[-1]
+#Make Tidy average data frames 
+#First get neighborhood and price columns, along with sale date
+data <- data %>% select(DateSold, district , SalePrice)
+data$district <- as.factor(data$district)
+order11 <- data %>% group_by(district) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+  arrange(desc(AvPrice))
+view(order11)
+cldata <- data %>% group_by(district, DateSold) %>% 
+  summarise_at(vars(SalePrice), list(AvPrice = mean, MedPrice = median, StDev= sd))
+avdata <- cldata %>% select(-c(MedPrice,StDev))
+avdata<- avdata %>% as_tsibble(key=district, index = DateSold) #Avdata is tidy, tsibble
+avdata %>% ggplot()+geom_line(aes(x=DateSold,y=AvPrice,color=district))
+conv <- data %>% group_by(month(DateSold), district) %>% summarise_at(vars(SalePrice), list(AvPrice = median) )%>%
+  arrange(desc(AvPrice)) #####Should I use Median or Average here? 
+conv %>% ggplot() +geom_line(aes(x=`month(DateSold)`, y=AvPrice, color=district))
 

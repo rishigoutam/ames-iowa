@@ -8,7 +8,9 @@ ames <- read.csv("./data/engineered.csv", stringsAsFactors = TRUE)
 sort(colnames(ames))
 
 set.seed(9001)
-random_sample <- createDataPartition(ames$LogSalePrice, p = 0.7, list = TRUE)
+random_sample <- createDataPartition(y = ames$LogSalePrice,
+                                     p = 0.7,
+                                     list = FALSE)
 
 train <- ames[random_sample, ]
 test <- ames[-random_sample, ]
