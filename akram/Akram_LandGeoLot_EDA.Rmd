@@ -389,7 +389,9 @@ fig2 = ggscatter(df_cleaned, x = "LotArea", y = "SalePrice",
           size = 0.25, color = "blue",
           cor.coef.coord = c(7.5e4,5e5),
           xtickslab.rt = 45,
-          xlab = "Lot Area (sq feet)", ylab = "SalePrice (USD)")
+          xlab = "Lot Area (sq feet)", ylab = "SalePrice (USD)") +
+        theme(axis.text = element_text(face="bold")) +
+        theme(axis.title = element_text(face="bold"))
 
 fig3 = ggscatter(df_cleaned, x = "LotArea", y = "logSalePrice", 
           add = "reg.line", conf.int = TRUE, 
@@ -398,7 +400,9 @@ fig3 = ggscatter(df_cleaned, x = "LotArea", y = "logSalePrice",
           cor.coef.coord = c(1.25e4,6),
           xtickslab.rt = 45,
           xlab = "Lot Area (sq feet)", ylab = "log(SalePrice)",
-          xlim = c(0,30000), ylim=c(4,6.25))
+          xlim = c(0,30000), ylim=c(4,6.25)) +
+        theme(axis.text = element_text(face="bold")) +
+        theme(axis.title = element_text(face="bold"))
 
 fig2 + fig3
 
@@ -411,7 +415,9 @@ fig4 = ggplot(df_cleaned, aes(x = reorder(Neighborhood, SalePrice), y = SalePric
         geom_boxplot() +
         labs(x="Neighborhood") +
         coord_flip() +
-        stat_summary(fun.y=mean, geom="point", shape=17, size=1, color="red", fill="black") + theme(legend.position = "none")
+        stat_summary(fun.y=mean, geom="point", shape=17, size=1, color="red", fill="black")         + theme(legend.position = "none"
+        + theme(axis.text = element_text(face="bold")) 
+        + theme(axis.title = element_text(face="bold"))                                             )
         
 fig4
 
@@ -428,7 +434,8 @@ fig5 = ggscatter(df_cleaned, x = "RemodSinceBuilt", y = "logSalePrice",
           size = 0.25, color = "blue",
           cor.coef.coord = c(0,4.25),
           xtickslab.rt = 45,
-          xlab = "Period Between Remodel and Build Date (years)", ylab = "SalePrice (USD)")
+          xlab = "Period Between Remodel and Build Date (years)", ylab = "SalePrice (USD)")         + theme(axis.text = element_text(face="bold")) +
+          theme(axis.title = element_text(face="bold"))
 
 fig5
 
@@ -445,7 +452,9 @@ fig6 = ggscatter(df_cleaned, x = "Age", y = "logSalePrice",
           size = 0.25, color = "blue",
           cor.coef.coord = c(0,4.25),
           xtickslab.rt = 45,
-          xlab = "Age (years)", ylab = "SalePrice (USD)")
+          xlab = "Age (years)", ylab = "SalePrice (USD)")  +
+        theme(axis.text = element_text(face="bold")) +
+        theme(axis.title = element_text(face="bold"))
 
 fig6
 
@@ -457,7 +466,9 @@ fig7 = ggplot(df_cleaned, aes(x = reorder(StreetAlley, SalePrice), y = SalePrice
         geom_boxplot() +
         labs(x="StreetAlley") +
         coord_flip() +
-        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.75,0.4)) + scale_fill_discrete(labels = c("Gravel / NoAlley (0)", "Paved / NoAlley (1)", "Paved / Gravel (2)", "Paved / Paved (3)"))
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.75,0.4)) + scale_fill_discrete(labels = c("Gravel / NoAlley (0)", "Paved / NoAlley (1)", "Paved / Gravel (2)", "Paved / Paved (3)"))  +
+        theme(axis.text = element_text(face="bold")) +
+        theme(axis.title = element_text(face="bold"))
         
 fig7
 
@@ -469,7 +480,9 @@ fig8 = ggplot(df_cleaned, aes(x = reorder(LotShape, SalePrice), y = SalePrice, f
         geom_boxplot() +
         labs(x="Lot Shape") +
         coord_flip() +
-        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.87,0.62)) + scale_fill_discrete(labels = c("Regular (0)", "Irregular1 (1)", "Irregular2 (2)", "Irregular3 (3)"))
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.87,0.62)) + scale_fill_discrete(labels = c("Regular (0)", "Irregular1 (1)", "Irregular2 (2)", "Irregular3 (3)")) +
+        theme(axis.text = element_text(face="bold")) +
+        theme(axis.title = element_text(face="bold"))
         
 fig8
 
@@ -481,7 +494,9 @@ fig9 = ggplot(df_cleaned, aes(x = reorder(LandContour, SalePrice), y = SalePrice
         geom_boxplot() +
         labs(x="Land Contour") +
         coord_flip() +
-        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.87,0.62)) + scale_fill_discrete(labels = c("Low (0)", "Level (1)", "Banked (2)", "Hillside (3)"))
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.87,0.62)) + scale_fill_discrete(labels = c("Low (0)", "Level (1)", "Banked (2)", "Hillside (3)")) +
+        theme(axis.text = element_text(face="bold")) +
+        theme(axis.title = element_text(face="bold"))
         
 fig9
 
@@ -493,7 +508,10 @@ fig10 = ggplot(df_cleaned, aes(x = reorder(LandSlope, SalePrice), y = SalePrice,
         geom_boxplot() +
         labs(x="Land Slope") +
         coord_flip() +
-        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.842,0.75)) + scale_fill_discrete(labels = c("Gentle (0)", "Moderate (1)", "Severe (2)"))
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black")       + theme(legend.position = c(0.842,0.75)) + scale_fill_discrete(labels = c("Gentle (0)", "Moderate (1)", "Severe (2)")  
+      + theme(axis.text = element_text(face="bold")) +
+        theme(axis.title = element_text(face="bold"))
+        )
         
 fig10
 
@@ -505,7 +523,9 @@ fig11 = ggplot(df_cleaned, aes(x = reorder(LotConfig, SalePrice), y = SalePrice,
         geom_boxplot() +
         labs(x="Lot Configuration") +
         coord_flip() +
-        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.87,0.6)) + scale_fill_discrete(labels = c("2-Side Frontage (0)", "Inside Lot (1)", "Corner Lot (2)", "3-Side Frontage (3)", "Cul De Sac (4)"))
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black") + theme(legend.position = c(0.87,0.6)) + scale_fill_discrete(labels = c("2-Side Frontage (0)", "Inside Lot (1)", "Corner Lot (2)", "3-Side Frontage (3)", "Cul De Sac (4)")) +
+        theme(axis.text = element_text(face="bold")) +
+        theme(axis.title = element_text(face="bold"))
         
 fig11
 
