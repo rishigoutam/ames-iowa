@@ -415,9 +415,7 @@ fig4 = ggplot(df_cleaned, aes(x = reorder(Neighborhood, SalePrice), y = SalePric
         geom_boxplot() +
         labs(x="Neighborhood") +
         coord_flip() +
-        stat_summary(fun.y=mean, geom="point", shape=17, size=1, color="red", fill="black")         + theme(legend.position = "none"
-        + theme(axis.text = element_text(face="bold")) 
-        + theme(axis.title = element_text(face="bold"))                                             )
+        stat_summary(fun.y=mean, geom="point", shape=17, size=1, color="red", fill="black")         + theme(legend.position = "none") + theme(axis.text = element_text(face="bold")) + theme(axis.title = element_text(face="bold"))
         
 fig4
 
@@ -508,10 +506,8 @@ fig10 = ggplot(df_cleaned, aes(x = reorder(LandSlope, SalePrice), y = SalePrice,
         geom_boxplot() +
         labs(x="Land Slope") +
         coord_flip() +
-        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black")       + theme(legend.position = c(0.842,0.75)) + scale_fill_discrete(labels = c("Gentle (0)", "Moderate (1)", "Severe (2)")  
-      + theme(axis.text = element_text(face="bold")) +
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black")       + theme(legend.position = c(0.842,0.75)) + scale_fill_discrete(labels = c("Gentle (0)", "Moderate (1)", "Severe (2)")) + theme(axis.text = element_text(face="bold")) +
         theme(axis.title = element_text(face="bold"))
-        )
         
 fig10
 
@@ -529,8 +525,59 @@ fig11 = ggplot(df_cleaned, aes(x = reorder(LotConfig, SalePrice), y = SalePrice,
         
 fig11
 
-ggsave("fig9.pdf")
+ggsave("fig11.pdf")
 
+#10 IsOnMainroad
+
+fig12 = ggplot(df_cleaned, aes(x = reorder(IsOnMainroad, SalePrice), y = SalePrice, fill=IsOnMainroad)) +
+        geom_boxplot() +
+        labs(x="Is On Mainroad?") +
+        coord_flip() +
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black")       + theme(legend.position = c(0.842,0.5)) + scale_fill_discrete(labels = c("No (0)", "Yes (1)")) + theme(axis.text = element_text(face="bold")) + theme(axis.title = element_text(face="bold"))
+        
+fig12
+
+ggsave("fig12.pdf")
+
+#11 IsNearRailroad
+
+fig13 = ggplot(df_cleaned, aes(x = reorder(IsNearRailroad, SalePrice), y = SalePrice, fill=IsNearRailroad)) +
+        geom_boxplot() +
+        labs(x="Is Near Railroad?") +
+        coord_flip() +
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black")       + theme(legend.position = c(0.842,0.5)) + scale_fill_discrete(labels = c("No (0)", "Yes (1)")) + theme(axis.text = element_text(face="bold")) + theme(axis.title = element_text(face="bold"))
+        
+fig13
+
+ggsave("fig13.pdf")
+
+#12 IsNearPark
+
+fig14 = ggplot(df_cleaned, aes(x = reorder(IsNearPark, SalePrice), y = SalePrice, fill=IsNearPark)) +
+        geom_boxplot() +
+        labs(x="Is Near Park?") +
+        coord_flip() +
+        stat_summary(fun.y=mean, geom="point", shape=17, size=2, color="red", fill="black")       + theme(legend.position = c(0.842,0.5)) + scale_fill_discrete(labels = c("No (0)", "Yes (1)")) + theme(axis.text = element_text(face="bold")) + theme(axis.title = element_text(face="bold"))
+        
+fig14
+
+ggsave("fig14.pdf")
+
+#13 Rate
+
+fig15 = ggscatter(df_cleaned, x = "Rate", y = "SalePrice", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          size = 0.25, color = "blue",
+          #cor.coef.coord = c(0,0),
+          xtickslab.rt = 45,
+          xlab = "Interest Rate (%)", ylab = "SalePrice (USD)") +
+        theme(axis.text = element_text(face="bold")) +
+        theme(axis.title = element_text(face="bold"))
+
+fig15
+
+ggsave("fig15.pdf")
 
 # cor.test(x, y, method=c("pearson", "kendall", "spearman"))
 
