@@ -497,11 +497,19 @@ ggsave("fig2-3.pdf")
 
 #2 Neighbourhood
 
+cor.result_2 = cor.test(as.integer(df_cleaned$Neighborhood_Int), df_cleaned$SalePrice, method=c("pearson"))
+
 fig4 = ggplot(df_cleaned, aes(x = reorder(Neighborhood, SalePrice), y = SalePrice, fill=Neighborhood)) +
-        geom_boxplot() +
+        geom_boxplot(outlier.size = 0.5) +
         labs(x="Neighborhood") +
         coord_flip() +
-        stat_summary(fun.y=mean, geom="point", shape=17, size=1, color="red", fill="black")         + theme(legend.position = "none") + theme(axis.text = element_text(face="bold")) + theme(axis.title = element_text(face="bold"))
+        stat_summary(fun.y=mean, geom="point", shape=17, size=1, color="red", fill="black")         + theme(legend.position = "none") + theme(axis.text = element_text(face="bold")) + theme(axis.title = element_text(face="bold"))  + annotate(geom = "text", label = paste("R = ", signif(cor.result_2$estimate,2)),
+           x = 4,
+           y = 5.5e5,
+           angle = 0,
+           hjust=0,
+           colour = "blue",
+           fontface =2)
         
 fig4
 
@@ -750,7 +758,11 @@ fig15
 
 ggsave("fig15.pdf")
 
-# cor.test(x, y, method=c("pearson", "kendall", "spearman"))
+#13 Time Series
+
+
+
+
 
 ```
 
