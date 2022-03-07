@@ -1,0 +1,95 @@
+---
+title: "Akram_Regression"
+output: html_notebook
+---
+
+Load packages:
+
+```{r}
+
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(tidyquant)
+library(patchwork)
+library(lubridate)
+library(zoo)
+library(Hmisc)
+library(ggcorrplot)
+library(corrplot)
+library(ggpubr)
+library(caret)
+
+path = "~/Desktop/NYCDSA/Homework/Project3/Akram/2 - Regression Models"
+setwd(path)
+
+```
+
+
+Import data:
+
+```{r}
+
+df_engineered = read.csv("~/Desktop/NYCDSA/Homework/Project3/Akram/1 - EDA/df_engineered.csv", stringsAsFactors = TRUE)
+
+head(df_engineered)
+
+```
+
+
+Linear regression model:
+
+```{r}
+
+set.seed(100)
+
+df_sample = createDataPartition(df_engineered$PID, p=0.7, list=FALSE)
+
+train_set = df_engineered[df_sample, ]
+test_set = df_engineered[-df_sample, ]
+
+Linear_Model = lm(logSalePrice ~
+                    GrLivArea + LotArea +
+                    Neighborhood_Int + Age +
+                    StreetAlley + RemodSinceBuilt +
+                    LotShape + LandContour +
+                    LandSlope + LotConfig +
+                    IsOnMainroad + IsNearPark +
+                    IsNearRailroad + SaleType +
+                    OverallQual + OverallCond +
+                    ExterQual + Exterior1st +
+                    Exterior2nd +
+                    BsmtQual + MSSubClass +
+                    BsmtExposure + Rate +
+                    BldgType + MSZoning +
+                    RoofStyle + RoofMatl +
+                    Foundation + TotalBsmtSF +
+                    Heating + KitchenQual +
+                    Fireplaces + GarageType +
+                    GarageQual + GarageCond +
+                    GarageFinish + GarageCars +
+                    KitchenAbvGr +
+                    PavedDrive + EnclosedPorch +
+                    SaleCondition + ScreenPorch +
+                    HouseStyle + BsmtFullBath +
+                    AllBathrooms + FullBath +
+                    FireplaceQu + Functional +
+                    TotRmsAbvGrd + BedroomAbvGr +
+                    HeatingQC + CentralAir,
+                  data = train_set)
+
+summary(Linear_Model)
+
+Linear_Model_Prediction = predict(Linear_Model, test_set)
+
+R2(Linear_Model_Prediction, test_set$logSalePrice)
+RMSE(Linear_Model_Prediction, test_set$logSalePrice)
+MAE(Linear_Model_Prediction, test_set$logSalePrice)
+
+vif(Linear_Model)
+
+
+
+
+```
+
