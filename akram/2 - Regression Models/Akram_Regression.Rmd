@@ -157,8 +157,62 @@ Elastic-Net Regression Model:
 
 ```{r}
 
+# First, let's create a new dataframe and get rid of columns we don't need:
 
+df_Elastic_Engineered = select(df_akram, -c(PID, GarageType, Exterior2nd))
 
+# As before. we split the data into a training and test set
+
+set.seed(200)
+
+training.samples = df_Elastic_Engineered$logSalePrice %>%
+  createDataPartition(p = 0.7, list = FALSE)
+
+train.data = df_Elastic_Engineered[training.samples, ]
+
+test.data = df_Elastic_Engineered[-training.samples, ]
+
+# Now we need to dummify all non numerical columns with model.matrix:
+
+# Training Predictor variables
+x = model.matrix(logSalePrice~., train.data)[,-1]
+
+# Training Outcome variable
+y = train.data$logSalePrice
+
+# We compute the cross validation error rate and find the best lambda:
+
+set.seed(300)
+
+Cross_Val_ER = cv.glmnet(x, y, alpha = 0)
+
+lambda_ = Cross_Val_ER$lambda.min
+
+# We build the elastic net regression model:
+
+set.seed(400)
+
+Elastic_Model = train(
+  logSalePrice ~., data = train.data, method = "glmnet",
+  trControl = trainControl("cv", number = 10),
+  tuneLength = 10
+)
+
+# Best tuning parameter
+
+#Elastic_Model$bestTune
+
+#coef(Elastic_Model$finalModel, Elastic_Model$bestTune$lambda)
+
+# Test Predictor variables
+x.test = model.matrix(logSalePrice~., test.data)[,-1]
+
+# Make predictions on the test data
+
+Elastic_Predictions = Elastic_Model %>% 
+  predict(x.test)
+
+summary(Elastic_Predictions)
 
 ```
 
