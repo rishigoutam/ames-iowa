@@ -350,7 +350,7 @@ df_cleaned$Neighborhood_Int[df_cleaned$Neighborhood == "NoRidge"] = as.integer(2
 
 df_cleaned$Neighborhood_Int = as.factor(df_cleaned$Neighborhood_Int)
 
-df_cleaned$Neighborhood_Int = factor(df_cleaned$Neighborhood_Int, levels = 0:27, ordered = TRUE)
+df_cleaned$Neighborhood_Int = factor(df_cleaned$Neighborhood_Int, levels = c(0:27), ordered = TRUE)
 
 # Relocate columns for tidyness
 
