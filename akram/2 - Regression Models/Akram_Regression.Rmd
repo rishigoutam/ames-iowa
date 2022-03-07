@@ -202,17 +202,19 @@ Elastic_Model = train(
 
 # Best tuning parameters
 
-#Elastic_Model$bestTune
+Elastic_Alpha = Elastic_Model$bestTune$alpha
 
-#coef(Elastic_Model$finalModel, Elastic_Model$bestTune$lambda)
+Elastic_Lambda = Elastic_Model$bestTune$lambda
+
+coef(Elastic_Model$finalModel, Elastic_Model$bestTune$lambda)
 
 # Make predictions on the test data:
 
 Elastic_Predictions = Elastic_Model %>% 
   predict(x.test)
 
-R2_Elastic = R2(Elastic_Predictions, test.data$logSalePrice)
-RMSE_Elastic = RMSE(Elastic_Predictions, test.data$logSalePrice)
+R2_Elastic_Test = R2(Elastic_Predictions, test.data$logSalePrice)
+RMSE_Elastic_Test = RMSE(Elastic_Predictions, test.data$logSalePrice)
 
 ```
 
@@ -221,19 +223,19 @@ Elastic regression model results summary:
 
 ```{r}
 
-sink("Linear_Model_Results.txt")
-cat(paste("Ames Linear Regression Model Results:"),
-    paste("R^2 Training = ", R2_Train), 
-    paste("R^2 Test = ", R2_Test), 
-    paste("RMSE Test = ", RMSE_Test), 
-    paste("GVIF Max = ", Max_GVIF), sep="\n")
+sink("Elastic_Model_Results.txt")
+cat(paste("Ames Elastic Regression Model Results:"),
+    paste("R^2 Test = ", R2_Elastic_Test), 
+    paste("RMSE Test = ", RMSE_Elastic_Test),
+    paste("Alpha = ", Elastic_Alpha), 
+    paste("Lambda = ", Elastic_Lambda), sep="\n")
 sink()
 
-cat(paste("Ames Linear Regression Model Results:"),
-    paste("R^2 Training = ", R2_Train), 
-    paste("R^2 Test = ", R2_Test), 
-    paste("RMSE Test = ", RMSE_Test), 
-    paste("GVIF Max = ", Max_GVIF), sep="\n")
+cat(paste("Ames Elastic Regression Model Results:"),
+    paste("R^2 Test = ", R2_Elastic_Test), 
+    paste("RMSE Test = ", RMSE_Elastic_Test),
+    paste("Alpha = ", Elastic_Alpha), 
+    paste("Lambda = ", Elastic_Lambda), sep="\n")
 
 ```
 
