@@ -20,6 +20,8 @@ library(ggpubr)
 library(caret)
 library(car)
 library(glmnet)
+library(modelr)
+library(broom)
 
 path = "~/Desktop/NYCDSA/Homework/Project3/Akram/2 - Regression Models"
 setwd(path)
@@ -102,10 +104,12 @@ Linear_Model_Prediction = predict(Linear_Model, test_set)
 R2_Test = R2(Linear_Model_Prediction, test_set$logSalePrice)
 RMSE_Test = RMSE(Linear_Model_Prediction, test_set$logSalePrice)
 MAE_Test = MAE(Linear_Model_Prediction, test_set$logSalePrice)
+AIC_Linear = AIC(Linear_Model)
 
 R2_Test
 RMSE_Test
 MAE_Test
+AIC_Linear
 
 GVIF = vif(Linear_Model)
 
@@ -140,14 +144,16 @@ cat(paste("Ames Linear Regression Model Results:"),
     paste("R^2 Training = ", R2_Train), 
     paste("R^2 Test = ", R2_Test), 
     paste("RMSE Test = ", RMSE_Test), 
-    paste("GVIF Max = ", Max_GVIF), sep="\n")
+    paste("GVIF Max = ", Max_GVIF), 
+    paste("AIC = ", AIC_Linear), sep="\n")
 sink()
 
 cat(paste("Ames Linear Regression Model Results:"),
     paste("R^2 Training = ", R2_Train), 
     paste("R^2 Test = ", R2_Test), 
     paste("RMSE Test = ", RMSE_Test), 
-    paste("GVIF Max = ", Max_GVIF), sep="\n")
+    paste("GVIF Max = ", Max_GVIF), 
+    paste("AIC = ", AIC_Linear), sep="\n")
 
 ```
 
@@ -215,6 +221,7 @@ Elastic_Predictions = Elastic_Model %>%
 
 R2_Elastic_Test = R2(Elastic_Predictions, test.data$logSalePrice)
 RMSE_Elastic_Test = RMSE(Elastic_Predictions, test.data$logSalePrice)
+#AIC_Elastic = AIC(Elastic_Model)
 
 ```
 
@@ -227,6 +234,7 @@ sink("Elastic_Model_Results.txt")
 cat(paste("Ames Elastic Regression Model Results:"),
     paste("R^2 Test = ", R2_Elastic_Test), 
     paste("RMSE Test = ", RMSE_Elastic_Test),
+    #paste("AIC = ", AIC_Elastic),
     paste("Alpha = ", Elastic_Alpha), 
     paste("Lambda = ", Elastic_Lambda), sep="\n")
 sink()
@@ -234,8 +242,20 @@ sink()
 cat(paste("Ames Elastic Regression Model Results:"),
     paste("R^2 Test = ", R2_Elastic_Test), 
     paste("RMSE Test = ", RMSE_Elastic_Test),
+    #paste("AIC = ", AIC_Elastic),
     paste("Alpha = ", Elastic_Alpha), 
     paste("Lambda = ", Elastic_Lambda), sep="\n")
+
+```
+
+
+List of optimum model features:
+
+```{r}
+
+sink("Optimum_Model_Features.txt")
+cat(colnames(df_Elastic_Engineered), sep="\n")
+sink()
 
 ```
 
