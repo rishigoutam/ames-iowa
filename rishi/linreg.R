@@ -30,6 +30,10 @@ model <- lm(LogSalePrice ~
               IsNearNegativeCondition + LandContour,
             data = train)
 
+# all features
+# model <- lm(LogSalePrice ~ . - SalePrice - PID,
+#             data = train)
+
 # Verify model
 summary(model) # R2 of 0.8723 in train
 vif(model)
