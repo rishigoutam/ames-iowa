@@ -19,6 +19,7 @@ library(ggcorrplot)
 library(corrplot)
 library(ggpubr)
 library(caret)
+library(car)
 
 path = "~/Desktop/NYCDSA/Homework/Project3/Akram/2 - Regression Models"
 setwd(path)
@@ -36,6 +37,18 @@ head(df_engineered)
 
 ```
 
+Engineer a custom dataframe with best features:
+
+```{r}
+
+df_akram = select(df_engineered, c(PID, logSalePrice, GrLivArea, LotArea, Neighborhood_Int, Age, StreetAlley, RemodSinceBuilt, LotShape, LandContour, LandSlope, LotConfig, IsOnMainroad, IsNearPark, IsNearRailroad, BsmtQual, RoofStyle, OverallQual, OverallCond, ExterQual, Exterior1st, Exterior2nd, BsmtExposure, Rate, BldgType, MSZoning, Foundation, TotalBsmtSF, Heating, KitchenQual, Fireplaces, GarageType, GarageQual, GarageCond, GarageFinish, GarageCars, KitchenAbvGr, PavedDrive, EnclosedPorch, SaleCondition, ScreenPorch, HouseStyle, BsmtFullBath, AllBathrooms, FullBath, FireplaceQu, Functional, TotRmsAbvGrd, BedroomAbvGr, HeatingQC, CentralAir))
+
+#MSSubClass
+#SaleType
+#RoofMatl
+
+```
+
 
 Linear regression model:
 
@@ -43,10 +56,10 @@ Linear regression model:
 
 set.seed(100)
 
-df_sample = createDataPartition(df_engineered$PID, p=0.7, list=FALSE)
+df_sample = createDataPartition(df_akram$PID, p=0.7, list=FALSE)
 
-train_set = df_engineered[df_sample, ]
-test_set = df_engineered[-df_sample, ]
+train_set = df_akram[df_sample, ]
+test_set = df_akram[-df_sample, ]
 
 Linear_Model = lm(logSalePrice ~
                     GrLivArea + LotArea +
@@ -55,19 +68,20 @@ Linear_Model = lm(logSalePrice ~
                     LotShape + LandContour +
                     LandSlope + LotConfig +
                     IsOnMainroad + IsNearPark +
-                    IsNearRailroad + SaleType +
+                    IsNearRailroad + BsmtQual +
+                    RoofStyle +
+                    # + SaleType +
                     OverallQual + OverallCond +
                     ExterQual + Exterior1st +
-                    Exterior2nd +
-                    BsmtQual + MSSubClass +
+                    # + MSSubClass + GarageFinish + 
                     BsmtExposure + Rate +
                     BldgType + MSZoning +
-                    RoofStyle + RoofMatl +
+                    # + RoofMatl + Exterior2nd +
                     Foundation + TotalBsmtSF +
                     Heating + KitchenQual +
                     Fireplaces + GarageType +
                     GarageQual + GarageCond +
-                    GarageFinish + GarageCars +
+                    GarageCars +
                     KitchenAbvGr +
                     PavedDrive + EnclosedPorch +
                     SaleCondition + ScreenPorch +
@@ -88,6 +102,22 @@ MAE(Linear_Model_Prediction, test_set$logSalePrice)
 
 vif(Linear_Model)
 
+df_eng_temp = select(df_akram, -PID)
+
+#cor(df_eng_temp)
+
+model.matrix(~0+., data=df_akram) %>% 
+  #cor(use="complete.obs") %>% 
+  cor(use="pairwise.complete.obs") %>% 
+  ggcorrplot(show.diag = F, type="lower", lab=FALSE, lab_size=0, tl.cex=0.5, tl.srt=90)
+
+ggsave("corr.pdf")
+
+corr_matrix = model.matrix(~0+., data=df_eng_temp) %>% 
+  #cor(use="complete.obs") %>% 
+  cor(use="pairwise.complete.obs")
+
+which(corr_matrix > 0.95 & corr_matrix !=1, arr.ind=T )
 
 
 
