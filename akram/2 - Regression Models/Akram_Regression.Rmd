@@ -149,7 +149,6 @@ cat(paste("Ames Linear Regression Model Results:"),
     paste("RMSE Test = ", RMSE_Test), 
     paste("GVIF Max = ", Max_GVIF), sep="\n")
 
-
 ```
 
 
@@ -180,6 +179,9 @@ x = model.matrix(logSalePrice~., train.data)[,-1]
 # Training Outcome variable
 y = train.data$logSalePrice
 
+# Test Predictor variables
+x.test = model.matrix(logSalePrice~., test.data)[,-1]
+
 # We compute the cross validation error rate and find the best lambda:
 
 set.seed(300)
@@ -193,26 +195,45 @@ lambda_ = Cross_Val_ER$lambda.min
 set.seed(400)
 
 Elastic_Model = train(
-  logSalePrice ~., data = train.data, method = "glmnet",
+  x, y, method = "glmnet",
   trControl = trainControl("cv", number = 10),
   tuneLength = 10
 )
 
-# Best tuning parameter
+# Best tuning parameters
 
 #Elastic_Model$bestTune
 
 #coef(Elastic_Model$finalModel, Elastic_Model$bestTune$lambda)
 
-# Test Predictor variables
-x.test = model.matrix(logSalePrice~., test.data)[,-1]
-
-# Make predictions on the test data
+# Make predictions on the test data:
 
 Elastic_Predictions = Elastic_Model %>% 
   predict(x.test)
 
-summary(Elastic_Predictions)
+R2_Elastic = R2(Elastic_Predictions, test.data$logSalePrice)
+RMSE_Elastic = RMSE(Elastic_Predictions, test.data$logSalePrice)
+
+```
+
+
+Elastic regression model results summary:
+
+```{r}
+
+sink("Linear_Model_Results.txt")
+cat(paste("Ames Linear Regression Model Results:"),
+    paste("R^2 Training = ", R2_Train), 
+    paste("R^2 Test = ", R2_Test), 
+    paste("RMSE Test = ", RMSE_Test), 
+    paste("GVIF Max = ", Max_GVIF), sep="\n")
+sink()
+
+cat(paste("Ames Linear Regression Model Results:"),
+    paste("R^2 Training = ", R2_Train), 
+    paste("R^2 Test = ", R2_Test), 
+    paste("RMSE Test = ", RMSE_Test), 
+    paste("GVIF Max = ", Max_GVIF), sep="\n")
 
 ```
 
