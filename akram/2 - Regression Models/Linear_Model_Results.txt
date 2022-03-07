@@ -1,0 +1,5 @@
+Ames Linear Regression Model Results:
+R^2 Training =  0.932462675932219
+R^2 Test =  0.908285135358714
+RMSE Test =  0.0509348150191214
+GVIF Max =  29

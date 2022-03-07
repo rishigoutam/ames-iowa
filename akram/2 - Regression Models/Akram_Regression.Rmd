@@ -10,7 +10,6 @@ Load packages:
 library(ggplot2)
 library(tidyr)
 library(dplyr)
-library(tidyquant)
 library(patchwork)
 library(lubridate)
 library(zoo)
@@ -20,6 +19,7 @@ library(corrplot)
 library(ggpubr)
 library(caret)
 library(car)
+library(glmnet)
 
 path = "~/Desktop/NYCDSA/Homework/Project3/Akram/2 - Regression Models"
 setwd(path)
@@ -93,13 +93,25 @@ Linear_Model = lm(logSalePrice ~
 
 summary(Linear_Model)
 
+R2_Train = summary(Linear_Model)$adj.r.squared
+
+R2_Train
+
 Linear_Model_Prediction = predict(Linear_Model, test_set)
 
-R2(Linear_Model_Prediction, test_set$logSalePrice)
-RMSE(Linear_Model_Prediction, test_set$logSalePrice)
-MAE(Linear_Model_Prediction, test_set$logSalePrice)
+R2_Test = R2(Linear_Model_Prediction, test_set$logSalePrice)
+RMSE_Test = RMSE(Linear_Model_Prediction, test_set$logSalePrice)
+MAE_Test = MAE(Linear_Model_Prediction, test_set$logSalePrice)
 
-vif(Linear_Model)
+R2_Test
+RMSE_Test
+MAE_Test
+
+GVIF = vif(Linear_Model)
+
+GVIF
+
+Max_GVIF = which(GVIF == max(GVIF))
 
 df_eng_temp = select(df_akram, -PID)
 
@@ -115,6 +127,36 @@ corr_matrix = model.matrix(~0+., data=df_eng_temp) %>%
   cor(use="pairwise.complete.obs")
 
 which(corr_matrix > 0.9 & corr_matrix !=1, arr.ind=T )
+
+```
+
+
+Linear model results summary:
+
+```{r}
+
+sink("Linear_Model_Results.txt")
+cat(paste("Ames Linear Regression Model Results:"),
+    paste("R^2 Training = ", R2_Train), 
+    paste("R^2 Test = ", R2_Test), 
+    paste("RMSE Test = ", RMSE_Test), 
+    paste("GVIF Max = ", Max_GVIF), sep="\n")
+sink()
+
+cat(paste("Ames Linear Regression Model Results:"),
+    paste("R^2 Training = ", R2_Train), 
+    paste("R^2 Test = ", R2_Test), 
+    paste("RMSE Test = ", RMSE_Test), 
+    paste("GVIF Max = ", Max_GVIF), sep="\n")
+
+
+```
+
+
+Elastic-Net Regression Model:
+
+```{r}
+
 
 
 
