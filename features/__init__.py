@@ -28,7 +28,8 @@ __categorical = {'MSSubClass', 'MSZoning',
                'SaleType', 'SaleCondition'}
 categorical = list(__categorical.union(__collapse_categorical).union(__combine_categorical))
 
-__new_numerical = {'NumFloors', 'Combine_BathroomsBsmt', 'Combine_BathroomsAbvGrd', 'AllBathrooms', 'Combine_Age'}
+__new_numerical = {'NumFloors', 'Combine_BathroomsBsmt', 'Combine_BathroomsAbvGrd', 'AllBathrooms',
+                   'Age', 'AgeRemod', 'AgeGarage', 'TotalFinBsmtSF', 'TotalOutdoorSF'}
 __numerical = {'GrLivArea', 'LotArea', 'LotFrontage', 'MasVnrArea',
              'BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF',
              '1stFlrSF', '2ndFlrSF', 'LowQualFinSF',
@@ -40,7 +41,7 @@ __numerical = {'GrLivArea', 'LotArea', 'LotFrontage', 'MasVnrArea',
 numerical = list(__numerical.union(__new_numerical))
 
 # TODO create more based on R^2. We want to create features only if we will use them
-booleans = ['IsPUD', 'IsRenovated', 'IsNearNegativeCondition', 'IsNearPositiveCondition']
+booleans = ['IsPUD', 'IsRenovated', 'IsNearNegativeCondition', 'IsNearPositiveCondition', 'HasPool']
 
 features = ordinal + categorical + numerical + booleans + ['DateSold']
 
