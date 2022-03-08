@@ -1,7 +1,55 @@
 Ames Linear Regression Model Results:
-R^2 Training =  0.932462675932219
-R^2 Test =  0.908285135358714
-RMSE Test =  0.0509348150191213
-GVIF Max =  28.1353537631547
-AIC =  -6098.49883191649
-BIC =  -5581.65714006439
+R^2 Training =  0.937780886465027
+R^2 Test =  0.911320214409101
+RMSE Test =  0.0500957172600667
+GVIF Max =  3.85468075752813
+AIC =  3376.94728775532
+BIC =  12652.6061617392 
+
+logSalePrice
+GrLivArea
+LotArea
+Neighborhood
+Age
+StreetAlley
+RemodSinceBuilt
+LotShape
+LandContour
+LandSlope
+LotConfig
+IsOnMainroad
+IsNearPark
+IsNearRailroad
+BsmtQual
+RoofStyle
+OverallQual
+OverallCond
+ExterQual
+Exterior1st
+BsmtExposure
+Rate
+BldgType
+MSZoning
+Foundation
+TotalBsmtSF
+Heating
+KitchenQual
+Fireplaces
+GarageQual
+GarageCond
+GarageFinish
+GarageCars
+KitchenAbvGr
+PavedDrive
+EnclosedPorch
+SaleCondition
+ScreenPorch
+HouseStyle
+BsmtFullBath
+FullBath
+FireplaceQu
+Functional
+TotRmsAbvGrd
+BedroomAbvGr
+HeatingQC
+CentralAir

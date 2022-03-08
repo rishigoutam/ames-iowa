@@ -1,6 +1,128 @@
 Ames Elastic Regression Model Results:
-R^2 Train =  0.928663240681812
-R^2 Test =  0.921653783074525
-RMSE Test =  0.046316165195139
+R^2 Train =  0.93306599933035
+R^2 Test =  0.92210693768976
+RMSE Test =  0.046214853570423
+AIC =  229.361298931876
+BIC =  850.670992328545
 Alpha =  0.5
 Lambda =  0.000781805133281192
+
+
+
+GrLivArea
+LotArea
+NeighborhoodBlueste
+NeighborhoodBrDale
+NeighborhoodBrkSide
+NeighborhoodClearCr
+NeighborhoodCollgCr
+NeighborhoodCrawfor
+NeighborhoodEdwards
+NeighborhoodGilbert
+NeighborhoodGreens
+NeighborhoodGrnHill
+NeighborhoodIDOTRR
+NeighborhoodLandmrk
+NeighborhoodMeadowV
+NeighborhoodMitchel
+NeighborhoodNAmes
+NeighborhoodNoRidge
+NeighborhoodNPkVill
+NeighborhoodNridgHt
+NeighborhoodNWAmes
+NeighborhoodOldTown
+NeighborhoodSawyer
+NeighborhoodSawyerW
+NeighborhoodSomerst
+NeighborhoodStoneBr
+NeighborhoodSWISU
+NeighborhoodTimber
+NeighborhoodVeenker
+Age
+StreetAlley
+RemodSinceBuilt
+LotShape
+LandContour
+LandSlope
+LotConfig
+IsOnMainroad
+IsNearPark
+IsNearRailroad
+BsmtQual
+RoofStyleGable
+RoofStyleGambrel
+RoofStyleHip
+RoofStyleMansard
+RoofStyleShed
+OverallQual
+OverallCond
+ExterQual
+Exterior1stAsphShn
+Exterior1stBrkComm
+Exterior1stBrkFace
+Exterior1stCBlock
+Exterior1stCemntBd
+Exterior1stHdBoard
+Exterior1stImStucc
+Exterior1stMetalSd
+Exterior1stPlywood
+Exterior1stPreCast
+Exterior1stStucco
+Exterior1stVinylSd
+Exterior1stWd Sdng
+Exterior1stWdShing
+BsmtExposure
+Rate
+BldgType2fmCon
+BldgTypeDuplex
+BldgTypeTwnhs
+BldgTypeTwnhsE
+MSZoningC (all)
+MSZoningFV
+MSZoningI (all)
+MSZoningRH
+MSZoningRL
+MSZoningRM
+FoundationCBlock
+FoundationPConc
+FoundationSlab
+FoundationStone
+FoundationWood
+TotalBsmtSF
+HeatingGasA
+HeatingGasW
+HeatingGrav
+HeatingOthW
+HeatingWall
+KitchenQual
+Fireplaces
+GarageQual
+GarageCond
+GarageFinishNoGarage
+GarageFinishRFn
+GarageFinishUnf
+GarageCars
+KitchenAbvGr
+PavedDrive
+EnclosedPorch
+SaleConditionAdjLand
+SaleConditionAlloca
+SaleConditionFamily
+SaleConditionNormal
+SaleConditionPartial
+ScreenPorch
+HouseStyle1.5Unf
+HouseStyle1Story
+HouseStyle2.5Fin
+HouseStyle2.5Unf
+HouseStyle2Story
+HouseStyleSFoyer
+HouseStyleSLvl
+BsmtFullBath
+FullBath
+FireplaceQu
+Functional
+TotRmsAbvGrd
+BedroomAbvGr
+HeatingQC
+CentralAirY

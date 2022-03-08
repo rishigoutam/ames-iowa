@@ -22,11 +22,41 @@ library(car)
 library(glmnet)
 library(modelr)
 library(broom)
+library(matrixStats)
 
 path = "~/Desktop/NYCDSA/Homework/Project3/Akram/2 - Regression Models"
 setwd(path)
 
 ```
+
+
+AIC/BIC function:
+
+```{r}
+
+AICBIC=function(fit, type){
+  if (length(deviance(fit))==1) {
+    tLL = -deviance(fit)
+    edf = fit$df
+    n = nobs(fit)
+  } else if (length(deviance(fit$finalModel))>1) {
+    tLL = -min(deviance(fit$finalModel))
+    edf = fit$finalModel$df[which.min(deviance(fit$finalModel))]
+    n = fit$finalModel$nobs
+  }
+  AIC_ = -tLL + 2*edf
+  BIC_ = log(n)*edf - tLL
+  if (identical(type,"aic")|identical(type,"AIC")) {
+    return(AIC_)
+  } else if (identical(type,"bic")|identical(type,"BIC")) {
+    return(BIC_)
+  } else {
+   return("Error! Unknown type") 
+  }
+}
+
+```
+
 
 
 Import data:
@@ -65,7 +95,7 @@ test_set = df_akram[-df_sample, ]
 
 Linear_Model = lm(logSalePrice ~
                     GrLivArea + LotArea +
-                    Neighborhood_Int + #Neighborhood + #
+                    Neighborhood + #Neighborhood_Int + #
                     StreetAlley + RemodSinceBuilt +
                     LotShape + LandContour +
                     LandSlope + LotConfig +
@@ -84,7 +114,8 @@ Linear_Model = lm(logSalePrice ~
                     PavedDrive + EnclosedPorch +
                     SaleCondition + ScreenPorch +
                     HouseStyle + BsmtFullBath +
-                    AllBathrooms + FullBath +
+                    FullBath +
+                    #AllBathrooms + 
                     FireplaceQu + Functional +
                     TotRmsAbvGrd + BedroomAbvGr +
                     HeatingQC + CentralAir,
@@ -104,10 +135,12 @@ Linear_Model_Prediction = predict(Linear_Model, test_set)
 R2_Test = R2(Linear_Model_Prediction, test_set$logSalePrice)
 RMSE_Test = RMSE(Linear_Model_Prediction, test_set$logSalePrice)
 MAE_Test = MAE(Linear_Model_Prediction, test_set$logSalePrice)
-AIC_Linear = AIC(Linear_Model)
-BIC_Linear = BIC(Linear_Model)
+#AIC_Linear = AIC(Linear_Model)
+AIC_Linear = AICBIC(Linear_Model, "aic")
+#BIC_Linear = BIC(Linear_Model)
+BIC_Linear = AICBIC(Linear_Model, "bic")
 GVIF = vif(Linear_Model)
-Max_GVIF = max(GVIF)
+Max_GVIF = max(GVIF[,3])
 
 R2_Test
 RMSE_Test
@@ -167,7 +200,10 @@ Elastic-Net Regression Model:
 
 # First, let's create a new dataframe and get rid of columns we don't need:
 
-df_Elastic_Engineered = select(df_akram, -c(PID, GarageType, Exterior2nd, Neighborhood_Int))
+df_Elastic_Engineered = select(df_akram, -c(PID, GarageType, Exterior2nd, Neighborhood_Int, AllBathrooms))
+
+#Neighborhood_Int
+#AllBathrooms
 
 # As before. we split the data into a training and test set
 
@@ -215,7 +251,7 @@ Elastic_Alpha = Elastic_Model$bestTune$alpha
 
 Elastic_Lambda = Elastic_Model$bestTune$lambda
 
-coef(Elastic_Model$finalModel, Elastic_Model$bestTune$lambda)
+#coef(Elastic_Model$finalModel, Elastic_Model$bestTune$lambda)
 
 # Make predictions on the test data:
 
@@ -228,56 +264,10 @@ Elastic_Predictions_Train = Elastic_Model %>%
 R2_Elastic_Train = R2(Elastic_Predictions_Train, train.data$logSalePrice)
 R2_Elastic_Test = R2(Elastic_Predictions, test.data$logSalePrice)
 RMSE_Elastic_Test = RMSE(Elastic_Predictions, test.data$logSalePrice)
+AIC_Elastic = AICBIC(Elastic_Model, "aic")
+BIC_Elastic = AICBIC(Elastic_Model, "bic")
 
 ```
-
-Calculation of AIC and BIC for Elastic Net Model:
-
-```{r}
-
-# Calculation of AIC and BIC for Elastic_Model - the hard way
-
-#tLL = Elastic_Model$finalModel$nulldev - min(deviance(Elastic_Model$finalModel))
-
-tLL = Elastic_Model$finalModel$nulldev - deviance(Elastic_Model$finalModel)
-
-#k = Elastic_Model$finalModel$df[which.min(deviance(Elastic_Model$finalModel))]
-
-k = Elastic_Model$finalModel$df
-
-n = Elastic_Model$finalModel$nobs
-
-AICc_Elastic = -tLL + 2*k + 2*k*(k+1)/(n-k-1)
-
-BIC_Elastic = log(n)*k - tLL
-
-AICc_Elastic
-
-BIC_Elastic
-
-predict(Elastic_Model$finalModel, type = "coefficients")
-
-Elastic_Model$finalModel$nulldev
-
-min(deviance(Elastic_Model$finalModel))
-
-tLL
-
-#----------------------------------------
-fit = glmnet(x, y, alpha=0) 
-
-tLL = fit$nulldev - deviance(fit)
-k = fit$df
-n = fit$nobs
-AICc = -tLL+2*k+2*k*(k+1)/(n-k-1)
-AICc
-
-BIC = log(n)*k - tLL
-BIC
-#----------------------------------------
-
-```
-
 
 Elastic regression model results summary:
 
@@ -288,18 +278,19 @@ cat(paste("Ames Elastic Regression Model Results:"),
     paste("R^2 Train = ", R2_Elastic_Train), 
     paste("R^2 Test = ", R2_Elastic_Test),
     paste("RMSE Test = ", RMSE_Elastic_Test),
-    #paste("AIC = ", AICc_Elastic),
-    #paste("BIC = ", BIC_Elastic),
+    paste("AIC = ", AIC_Elastic),
+    paste("BIC = ", BIC_Elastic),
     paste("Alpha = ", Elastic_Alpha), 
     paste("Lambda = ", Elastic_Lambda), sep="\n")
+cat(paste("\n\n"), paste(Elastic_Model$finalModel$xNames), sep="\n")
 sink()
 
 cat(paste("Ames Elastic Regression Model Results:"),
     paste("R^2 Train = ", R2_Elastic_Train), 
     paste("R^2 Test = ", R2_Elastic_Test),
     paste("RMSE Test = ", RMSE_Elastic_Test),
-    #paste("AIC = ", AICc_Elastic),
-    #paste("BIC = ", BIC_Elastic),
+    paste("AIC = ", AIC_Elastic),
+    paste("BIC = ", BIC_Elastic),
     paste("Alpha = ", Elastic_Alpha), 
     paste("Lambda = ", Elastic_Lambda), sep="\n")
 
