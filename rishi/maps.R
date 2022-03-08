@@ -135,10 +135,10 @@ plot_cat_feature_on_districts <- function(feature, title, label_title) {
             fill = factor(ames_school_districts_sf$fill_color)) +
     # Properties
     geom_point(data = ames,
-               aes(x = longitude, y = latitude, color = feature),
+               aes(x = longitude, y = latitude, shape = feature, color = SalePrice),
                alpha = 0.8) +
     theme(legend.position = "right") +
-    labs(title = title, color = label_title) +
+    labs(title = title, shape = label_title) +
     xlab("Longitude") +
     ylab("Latitude")
 }
