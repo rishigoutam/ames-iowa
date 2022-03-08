@@ -7,6 +7,9 @@ library(feasts)
 library(patchwork)
 library(slider)
 library(seasonal)
+library(forecast)
+library(astsa)
+library(tsdl)
 
 #Predictions by Subclass
 
@@ -39,39 +42,148 @@ odata <- data %>% as_tsibble(key=Collapse_MSSubClass, index= date)
 #Time-Series Analysis
 #______________________________________Basic Plotting
 avdata %>% autoplot()
-purav %>% ungroup() %>% select(AvPrice) %>% ts() %>% plot.ts()
-purav %>% ungroup() %>% select(AvPrice) %>% ts() %>% acf2()
+purav %>% ungroup() %>% select(AvPrice) %>% ts() %>% plot.ts(main="All Data")
+purav %>% ungroup() %>% select(AvPrice) %>% ts() %>% acf2(main="All Data ACF/PACF")
 #No need to log-transform, doesn't seem like variance is increasing over time
 
 #We Need to Do some dIfferencing 
-purav %>%  ungroup() %>% select(AvPrice) %>% ts() %>% diff(1) %>% acf2()
-purav %>%  ungroup() %>% select(AvPrice) %>% ts() %>% diff(1) %>% plot.ts() 
+purav %>%  ungroup() %>% select(AvPrice) %>% ts() %>% diff(1) %>% acf2(main="1diff ACF")
+purav %>%  ungroup() %>% select(AvPrice) %>% ts() %>% diff(1) %>% plot.ts(main="1diff All Data") 
 #double differencing introduces too much negative residue in PACF
-purav %>%  ungroup() %>% select(AvPrice) %>% ts() %>% diff(1) %>%  diff(1) %>% acf2()
+purav %>%  ungroup() %>% select(AvPrice) %>% ts() %>% diff(1) %>%  diff(1) %>% acf2(main="2Diff ACF--note increased residue")
 
 
 
 #for Trad 
-purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% select(AvPrice) %>% ts() %>% plot.ts()
-purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% select(AvPrice) %>% ts() %>% acf2()
-purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% select(AvPrice) %>% ts() %>% diff(1) %>% plot.ts()
-purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% select(AvPrice) %>% ts() %>% diff(1) %>% acf2()
+purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% select(AvPrice) %>% ts() %>% plot.ts(main="Trad")
+purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% select(AvPrice) %>% ts() %>% acf2(main="Trad ACF/PACF")
+purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% select(AvPrice) %>% ts() %>% diff(1) %>% plot.ts(main="DTrad")
+purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% select(AvPrice) %>% ts() %>% diff(1) %>% acf2(main="DTrad ACF/PACF")
 purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>%
   select(AvPrice) %>%
   ts() %>%
   diff(1) %>% diff(1) %>% #More neg residue added, double diff is overkill
-  acf2()
+  acf2(main="DDtrad ACF")
+
+#for Duplex
+purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Duplex") %>% select(AvPrice) %>% ts() %>% plot.ts(main="Duplex")
+purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Duplex") %>% select(AvPrice) %>% ts() %>% acf2(main="Duplex ACF/PACF")
+purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Duplex") %>% select(AvPrice) %>% ts() %>% diff(1) %>% plot.ts(main="DDuplex")
+purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Duplex") %>% select(AvPrice) %>% ts() %>% diff(1) %>% acf2(main="DDuplex ACF/PACF")
+#One Differencing seems good here too
+
+
+#For Split
+purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Split") %>% select(AvPrice) %>% ts() %>% plot.ts(main="Split")
+purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Split") %>% select(AvPrice) %>% ts() %>% acf2(main="Split ACF/PACF")
+purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Split") %>% select(AvPrice) %>% ts() %>% diff(1) %>% plot.ts(main="DSplit")
+purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Split") %>% select(AvPrice) %>% ts() %>% diff(1) %>% acf2(main="DSplit ACF/PACF")
+#looks like 1 or 0 differencing steps would be fine here, we can just go with 1 and see what the ARIMA loop tells us. 
 
 
 
-
-
-
-#Ljung-Box Tests
+#Ljung-Box Tests-- we want p< .05
 pa.d <- purav %>%  ungroup() %>% select(AvPrice) %>% ts() %>% diff(1) 
-pa.d %>% Box.test(type="Ljung-Box", lag = log(nrow(pa.d)))
+pa.d %>% Box.test(type="Ljung-Box", lag = log(nrow(pa.d))) #p = 5.7 e-13
 trad.d <- purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% select(AvPrice) %>% ts() %>% diff(1)
-trad.d %>% Box.test(type="Ljung-Box", lag = log(nrow(trad.d)))
+trad.d %>% Box.test(type="Ljung-Box", lag = log(nrow(trad.d))) #p = .01
+dupl.d <- purav %>% ungroup() %>% filter(Collapse_MSSubClass=="Duplex") %>% select(AvPrice) %>% ts() %>% diff(1)
+dupl.d %>% Box.test(type="Ljung-Box", lag = log(nrow(dupl.d))) #p = .0004
+splt.d <- purav %>% ungroup() %>% filter(Collapse_MSSubClass=="Split") %>% select(AvPrice) %>% ts() %>% diff(1)
+splt.d %>% Box.test(type="Ljung-Box", lag = log(nrow(splt.d))) #p = .006
+
+#These are all significant autocorrelations--an ARIMA model would be useful here. 
+
+
+#_________________________________________________________________________ARIMA
+#
+# total--Arima model, MA(q), d, AR(p)
+#q = 1 from ACF, p=4 from PACF, and d=1 since we differenced once
+set <-purav %>%  ungroup() %>% select(AvPrice) %>% ts() 
+d=1
+p_max=4
+q_max=1
+for(p in 1:p_max){
+  for(q in 1:q_max){
+    if(p+q+d<=(d+q_max+p_max)){
+      model <- arima(set, order=c((p-1),d,(q-1))  ) 
+      pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
+      sse = sum(model$residuals^2)
+      cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
+      
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+#Traditional ARIMA model 
+#q = 1, p= 2, d =1
+#
+
+set <-purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>%select(AvPrice) %>% ts() 
+d=1
+p_max=2
+q_max=1
+for(p in 1:p_max){
+  for(q in 1:q_max){
+    if(p+q+d<=(d+q_max+p_max)){
+      model <- arima(set, order=c((p-1),d,(q-1))  ) 
+      pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
+      sse = sum(model$residuals^2)
+      cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
+      
+    }
+  }
+}
+
+
+#Duplex ARIMA model
+#q = 1, p=1, d=1
+#
+set <-purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Duplex") %>%select(AvPrice) %>% ts() 
+d=2
+p_max=2
+q_max=2
+for(p in 1:p_max){
+  for(q in 1:q_max){
+    if(p+q+d<=(d+q_max+p_max)){
+      model <- arima(set, order=c((p-1),d,(q-1))  ) 
+      pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
+      sse = sum(model$residuals^2)
+      cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
+      
+    }
+  }
+}
+
+
+
+#Split ARIMA model 
+#q=1, p=1, d=1 
+set <-purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Split") %>%select(AvPrice) %>% ts() 
+d=2
+p_max=2
+q_max=2
+for(p in 1:p_max){
+  for(q in 1:q_max){
+    if(p+q+d<=(d+q_max+p_max)){
+      model <- arima(set, order=c((p-1),d,(q-1))  ) 
+      pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
+      sse = sum(model$residuals^2)
+      cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
+      
+    }
+  }
+}
+
+
 
 
 
