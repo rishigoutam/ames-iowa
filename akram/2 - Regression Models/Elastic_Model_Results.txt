@@ -1,4 +1,5 @@
 Ames Elastic Regression Model Results:
+R^2 Train =  0.928663240681812
 R^2 Test =  0.921653783074525
 RMSE Test =  0.046316165195139
 Alpha =  0.5

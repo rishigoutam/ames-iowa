@@ -43,7 +43,7 @@ Engineer a custom dataframe with best features:
 
 ```{r}
 
-df_akram = select(df_engineered, c(PID, logSalePrice, GrLivArea, LotArea, Neighborhood_Int, Age, StreetAlley, RemodSinceBuilt, LotShape, LandContour, LandSlope, LotConfig, IsOnMainroad, IsNearPark, IsNearRailroad, BsmtQual, RoofStyle, OverallQual, OverallCond, ExterQual, Exterior1st, Exterior2nd, BsmtExposure, Rate, BldgType, MSZoning, Foundation, TotalBsmtSF, Heating, KitchenQual, Fireplaces, GarageType, GarageQual, GarageCond, GarageFinish, GarageCars, KitchenAbvGr, PavedDrive, EnclosedPorch, SaleCondition, ScreenPorch, HouseStyle, BsmtFullBath, AllBathrooms, FullBath, FireplaceQu, Functional, TotRmsAbvGrd, BedroomAbvGr, HeatingQC, CentralAir))
+df_akram = select(df_engineered, c(PID, logSalePrice, GrLivArea, LotArea, Neighborhood_Int, Neighborhood, Age, StreetAlley, RemodSinceBuilt, LotShape, LandContour, LandSlope, LotConfig, IsOnMainroad, IsNearPark, IsNearRailroad, BsmtQual, RoofStyle, OverallQual, OverallCond, ExterQual, Exterior1st, Exterior2nd, BsmtExposure, Rate, BldgType, MSZoning, Foundation, TotalBsmtSF, Heating, KitchenQual, Fireplaces, GarageType, GarageQual, GarageCond, GarageFinish, GarageCars, KitchenAbvGr, PavedDrive, EnclosedPorch, SaleCondition, ScreenPorch, HouseStyle, BsmtFullBath, AllBathrooms, FullBath, FireplaceQu, Functional, TotRmsAbvGrd, BedroomAbvGr, HeatingQC, CentralAir))
 
 #MSSubClass
 #SaleType
@@ -65,13 +65,13 @@ test_set = df_akram[-df_sample, ]
 
 Linear_Model = lm(logSalePrice ~
                     GrLivArea + LotArea +
-                    Neighborhood_Int + Age +
+                    Neighborhood_Int + #Neighborhood + #
                     StreetAlley + RemodSinceBuilt +
                     LotShape + LandContour +
                     LandSlope + LotConfig +
                     IsOnMainroad + IsNearPark +
                     IsNearRailroad + BsmtQual +
-                    RoofStyle +
+                    RoofStyle + Age +
                     OverallQual + OverallCond +
                     ExterQual + Exterior1st +
                     BsmtExposure + Rate +
@@ -105,17 +105,18 @@ R2_Test = R2(Linear_Model_Prediction, test_set$logSalePrice)
 RMSE_Test = RMSE(Linear_Model_Prediction, test_set$logSalePrice)
 MAE_Test = MAE(Linear_Model_Prediction, test_set$logSalePrice)
 AIC_Linear = AIC(Linear_Model)
+BIC_Linear = BIC(Linear_Model)
+GVIF = vif(Linear_Model)
+Max_GVIF = max(GVIF)
 
 R2_Test
 RMSE_Test
 MAE_Test
+Max_GVIF
 AIC_Linear
-
-GVIF = vif(Linear_Model)
+BIC_Linear
 
 GVIF
-
-Max_GVIF = which(GVIF == max(GVIF))
 
 df_eng_temp = select(df_akram, -PID)
 
@@ -130,7 +131,7 @@ corr_matrix = model.matrix(~0+., data=df_eng_temp) %>%
   #cor(use="complete.obs") %>% 
   cor(use="pairwise.complete.obs")
 
-which(corr_matrix > 0.9 & corr_matrix !=1, arr.ind=T )
+which(corr_matrix > 0.9 & corr_matrix !=1, arr.ind=T)
 
 ```
 
@@ -144,16 +145,18 @@ cat(paste("Ames Linear Regression Model Results:"),
     paste("R^2 Training = ", R2_Train), 
     paste("R^2 Test = ", R2_Test), 
     paste("RMSE Test = ", RMSE_Test), 
-    paste("GVIF Max = ", Max_GVIF), 
-    paste("AIC = ", AIC_Linear), sep="\n")
+    paste("GVIF Max = ", Max_GVIF),
+    paste("AIC = ", AIC_Linear),
+    paste("BIC = ", BIC_Linear), sep="\n")
 sink()
 
 cat(paste("Ames Linear Regression Model Results:"),
     paste("R^2 Training = ", R2_Train), 
     paste("R^2 Test = ", R2_Test), 
     paste("RMSE Test = ", RMSE_Test), 
-    paste("GVIF Max = ", Max_GVIF), 
-    paste("AIC = ", AIC_Linear), sep="\n")
+    paste("GVIF Max = ", Max_GVIF),
+    paste("AIC = ", AIC_Linear),
+    paste("BIC = ", BIC_Linear), sep="\n")
 
 ```
 
@@ -164,7 +167,7 @@ Elastic-Net Regression Model:
 
 # First, let's create a new dataframe and get rid of columns we don't need:
 
-df_Elastic_Engineered = select(df_akram, -c(PID, GarageType, Exterior2nd))
+df_Elastic_Engineered = select(df_akram, -c(PID, GarageType, Exterior2nd, Neighborhood_Int))
 
 # As before. we split the data into a training and test set
 
@@ -219,9 +222,59 @@ coef(Elastic_Model$finalModel, Elastic_Model$bestTune$lambda)
 Elastic_Predictions = Elastic_Model %>% 
   predict(x.test)
 
+Elastic_Predictions_Train = Elastic_Model %>% 
+  predict(x)
+
+R2_Elastic_Train = R2(Elastic_Predictions_Train, train.data$logSalePrice)
 R2_Elastic_Test = R2(Elastic_Predictions, test.data$logSalePrice)
 RMSE_Elastic_Test = RMSE(Elastic_Predictions, test.data$logSalePrice)
-#AIC_Elastic = AIC(Elastic_Model)
+
+```
+
+Calculation of AIC and BIC for Elastic Net Model:
+
+```{r}
+
+# Calculation of AIC and BIC for Elastic_Model - the hard way
+
+#tLL = Elastic_Model$finalModel$nulldev - min(deviance(Elastic_Model$finalModel))
+
+tLL = Elastic_Model$finalModel$nulldev - deviance(Elastic_Model$finalModel)
+
+#k = Elastic_Model$finalModel$df[which.min(deviance(Elastic_Model$finalModel))]
+
+k = Elastic_Model$finalModel$df
+
+n = Elastic_Model$finalModel$nobs
+
+AICc_Elastic = -tLL + 2*k + 2*k*(k+1)/(n-k-1)
+
+BIC_Elastic = log(n)*k - tLL
+
+AICc_Elastic
+
+BIC_Elastic
+
+predict(Elastic_Model$finalModel, type = "coefficients")
+
+Elastic_Model$finalModel$nulldev
+
+min(deviance(Elastic_Model$finalModel))
+
+tLL
+
+#----------------------------------------
+fit = glmnet(x, y, alpha=0) 
+
+tLL = fit$nulldev - deviance(fit)
+k = fit$df
+n = fit$nobs
+AICc = -tLL+2*k+2*k*(k+1)/(n-k-1)
+AICc
+
+BIC = log(n)*k - tLL
+BIC
+#----------------------------------------
 
 ```
 
@@ -232,17 +285,21 @@ Elastic regression model results summary:
 
 sink("Elastic_Model_Results.txt")
 cat(paste("Ames Elastic Regression Model Results:"),
-    paste("R^2 Test = ", R2_Elastic_Test), 
+    paste("R^2 Train = ", R2_Elastic_Train), 
+    paste("R^2 Test = ", R2_Elastic_Test),
     paste("RMSE Test = ", RMSE_Elastic_Test),
-    #paste("AIC = ", AIC_Elastic),
+    #paste("AIC = ", AICc_Elastic),
+    #paste("BIC = ", BIC_Elastic),
     paste("Alpha = ", Elastic_Alpha), 
     paste("Lambda = ", Elastic_Lambda), sep="\n")
 sink()
 
 cat(paste("Ames Elastic Regression Model Results:"),
-    paste("R^2 Test = ", R2_Elastic_Test), 
+    paste("R^2 Train = ", R2_Elastic_Train), 
+    paste("R^2 Test = ", R2_Elastic_Test),
     paste("RMSE Test = ", RMSE_Elastic_Test),
-    #paste("AIC = ", AIC_Elastic),
+    #paste("AIC = ", AICc_Elastic),
+    #paste("BIC = ", BIC_Elastic),
     paste("Alpha = ", Elastic_Alpha), 
     paste("Lambda = ", Elastic_Lambda), sep="\n")
 
