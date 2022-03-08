@@ -1,7 +1,7 @@
 logSalePrice
 GrLivArea
 LotArea
-Neighborhood_Int
+Neighborhood
 Age
 StreetAlley
 RemodSinceBuilt
@@ -38,7 +38,6 @@ SaleCondition
 ScreenPorch
 HouseStyle
 BsmtFullBath
-AllBathrooms
 FullBath
 FireplaceQu
 Functional
