@@ -135,10 +135,10 @@ plot_cat_feature_on_districts <- function(feature, title, label_title) {
             fill = factor(ames_school_districts_sf$fill_color)) +
     # Properties
     geom_point(data = ames,
-               aes(x = longitude, y = latitude, color = feature),
+               aes(x = longitude, y = latitude, shape = feature, color = SalePrice),
                alpha = 0.8) +
     theme(legend.position = "right") +
-    labs(title = title, color = label_title) +
+    labs(title = title, shape = label_title) +
     xlab("Longitude") +
     ylab("Latitude")
 }
@@ -151,8 +151,11 @@ plot_feature_on_districts(ames$YearBuilt, "Year Built", "Year")
 # Categorical features
 plot_cat_feature_on_districts(ames$MSZoning, "Zone", "Zone")
 plot_cat_feature_on_districts(ames$IsPUD, "PUD", "PUD")
+
 plot_cat_feature_on_districts(ames$LandContour, "Land Contour", "Land Contour")
+ames$IsNearNegativeCondition <- as_factor(ames$IsNearNegativeCondition)
 plot_cat_feature_on_districts(ames$IsNearNegativeCondition, "Near Roads of Railways", "Near Roads of Railways")
 plot_cat_feature_on_districts(ames$LandContour, "Land Contour", "Land Contour")
+ames$Collapse_MSSubClass <- as_factor(ames$Collapse_MSSubClass)
 plot_cat_feature_on_districts(ames$Collapse_MSSubClass, "Subclass", "Subclass")
 plot_cat_feature_on_districts(ames$district, "district", "district")
