@@ -5,6 +5,8 @@
 ```mermaid
 flowchart LR
     d_r[(Ames_Real_Estate\n_Data.csv)]-->geo
+    d_TNX[(TNX)]-->geo
+    d_shapefile[(ames_school_districts_sf)]-->geo
     
     subgraph geo [New Features <various R/python>]
         direction LR
@@ -31,16 +33,16 @@ flowchart LR
         direction TB
         ordinate[[convert categorical \nfeatures to ordinal]]-->indicator
         indicator[[create indicator \nfeatures]]-->new
-        new[[create new \nfeatures]]
+        new[[create derived \nfeatures]]
     end
     
     d_c-->encode-->d_e[(engineered.csv)]
     
     subgraph eda [EDA <eda.ipynb, eda.R>]
         direction TB
-        histograms---
+        histograms-.-
         boxplots
-        scatterplots---
+        scatterplots-.-
         regplots
     end
     
@@ -67,15 +69,15 @@ flowchart LR
         
     end
     
-    subgraph algo [Other Models]
+    subgraph algo [Additional Models]
         direction LR
         decision_tree>Decision Tree]
         arima>ARIMA]
         backprop>Back Propagation]
         svr>SVR]
         
-        decision_tree-->random_forest>Random Forest]
-        decision_tree-->boosted>Boosting]
+        decision_tree.->random_forest>Random Forest]
+        decision_tree.->boosted>Boosting]
     end
     
     d_c-->eda
