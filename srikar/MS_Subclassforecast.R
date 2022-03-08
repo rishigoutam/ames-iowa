@@ -115,11 +115,13 @@ for(p in 1:p_max){
   }
 }
 
+#looks like 3,1,0 model has lowest AIC but p-value isn't good (we should be accepting Null)
+arima = arima(set, order =c(3,1,0))
+predict = forecast(arima,h=12, level=80)
+autoplot(predict, main ="ARIMA(3,1,0) Prediction on Total Sales", ylab="Average Price ($)")
 
 
-
-
-
+#Not a great model
 
 
 
@@ -142,7 +144,10 @@ for(p in 1:p_max){
     }
   }
 }
-
+#110 is a good model, with high p-value and low aic
+arima = arima(set, order =c(1,1,0))
+predict = forecast(arima,h=12, level=80)
+autoplot(predict, main ="ARIMA(1,1,0) Prediction on Traditional Sales", ylab="Average Price ($)")
 
 #Duplex ARIMA model
 #q = 1, p=1, d=1
@@ -162,7 +167,10 @@ for(p in 1:p_max){
     }
   }
 }
-
+#looks like 121 is best
+arima = arima(set, order =c(1,2,1))
+predict = forecast(arima,h=12, level=80)
+autoplot(predict, main ="ARIMA(1,2,1) Prediction on Duplex Sales", ylab="Average Price ($)")
 
 
 #Split ARIMA model 
@@ -184,6 +192,9 @@ for(p in 1:p_max){
 }
 
 
+arima = arima(set, order =c(1,2,1))
+predict = forecast(arima,h=12, level=80)
+autoplot(predict, main ="ARIMA(3,1,0) Prediction on Split Sales", ylab="Average Price ($)")
 
 
 
@@ -195,8 +206,7 @@ for(p in 1:p_max){
 
 
 
-
-
+#__________________________________________________________________________________
 
 
 
