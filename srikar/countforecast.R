@@ -237,8 +237,8 @@ lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts() %>% diff(6) %>%
 set <- upwt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
 d= 2
 DD= 2
-p_max= 2
-q_max=2 
+p_max= 3
+q_max=3 
 p_s_max=2
 q_s_max= 2
 per= 12
@@ -257,18 +257,18 @@ for(p in 1:p_max){
   }
 }
 #want p-value to be large, we want the residuals to be normal
-#Seems like SARIMA(1,2,1,1,2,0,12) is the best model 
-sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,0), period = per))
+#Seems like SARIMA(0,2,2,1,2,0,12) is the best model 
+sarima = arima(x=set, order = c(0,2,2), seasonal = list(order = c(1,2,0), period = per))
 predict = forecast(sarima, h=24, level = 80)
-autoplot(predict) +ylab("Demand (Weighted Price in $)") + labs(title ="Two-Year SARIMA(1,2,1,1,2,1,12) Prediction for Upper Two-Tile Housing Demand") +
+autoplot(predict) +ylab("Demand (Weighted Price in $ (normalized by %Population))") + labs(title ="Two-Year SARIMA(1,2,2,1,2,1,12) Prediction for Upper Two-Tile Housing Demand") +
   xlab("Months from Jan 2006")
 
 #_________Lower SARIMA
 set <- lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
 d= 2
 DD= 2
-p_max= 2
-q_max=2 
+p_max= 3
+q_max=3 
 p_s_max=2
 q_s_max= 2
 per= 12
@@ -287,10 +287,10 @@ for(p in 1:p_max){
   }
 }
 #want p-value to be large, we want the residuals to be normal
-#Seems like SARIMA(1,2,1,1,2,0,12) is the best model 
-sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,0), period = per))
+#Seems like SARIMA(0,2,2,0,2,1,12) is the best model 
+sarima = arima(x=set, order = c(0,2,2), seasonal = list(order = c(0,2,1), period = per))
 predict = forecast(sarima, h=24, level = 80)
-autoplot(predict) +ylab("Demand (Weighted Price in $)")+ ylab("Demand (Weighted Price in $)") + labs(title ="Two-Year SARIMA(1,2,1,1,2,1,12) Prediction for Lower Two-Tile Housing Demand") +
+autoplot(predict) +ylab("Demand (Weighted Price in $ (normalized by %Population))")  + labs(title ="Two-Year SARIMA(1,2,1,1,2,1,12) Prediction for Lower Two-Tile Housing Demand") +
   xlab("Months from Jan 2006")
 
 
