@@ -75,6 +75,8 @@ Engineer a custom dataframe with best features:
 
 df_akram = select(df_engineered, c(PID, logSalePrice, GrLivArea, LotArea, Neighborhood_Int, Neighborhood, Age, StreetAlley, RemodSinceBuilt, LotShape, LandContour, LandSlope, LotConfig, IsOnMainroad, IsNearPark, IsNearRailroad, BsmtQual, RoofStyle, OverallQual, OverallCond, ExterQual, Exterior1st, Exterior2nd, BsmtExposure, Rate, BldgType, MSZoning, Foundation, TotalBsmtSF, Heating, KitchenQual, Fireplaces, GarageType, GarageQual, GarageCond, GarageFinish, GarageCars, KitchenAbvGr, PavedDrive, EnclosedPorch, SaleCondition, ScreenPorch, HouseStyle, BsmtFullBath, AllBathrooms, FullBath, FireplaceQu, Functional, TotRmsAbvGrd, BedroomAbvGr, HeatingQC, CentralAir))
 
+write.csv(df_akram, "df_Backprop_Engineered.csv")
+
 #MSSubClass
 #SaleType
 #RoofMatl
@@ -142,14 +144,14 @@ BIC_Linear = AICBIC(Linear_Model, "bic")
 GVIF = vif(Linear_Model)
 Max_GVIF = max(GVIF[,3])
 
-R2_Test
-RMSE_Test
-MAE_Test
-Max_GVIF
-AIC_Linear
-BIC_Linear
+#R2_Test
+#RMSE_Test
+#MAE_Test
+#Max_GVIF
+#AIC_Linear
+#BIC_Linear
 
-GVIF
+#GVIF
 
 df_eng_temp = select(df_akram, -PID)
 
@@ -158,7 +160,7 @@ model.matrix(~0+., data=df_eng_temp) %>%
   cor(use="pairwise.complete.obs") %>% 
   ggcorrplot(show.diag = F, type="lower", lab=FALSE, lab_size=2, tl.cex=2, tl.srt=90)
 
-ggsave("corr.pdf")
+ggsave("Master_Correlation_Matrix.pdf")
 
 corr_matrix = model.matrix(~0+., data=df_eng_temp) %>% 
   #cor(use="complete.obs") %>% 
@@ -180,7 +182,8 @@ cat(paste("Ames Linear Regression Model Results:"),
     paste("RMSE Test = ", RMSE_Test), 
     paste("GVIF Max = ", Max_GVIF),
     paste("AIC = ", AIC_Linear),
-    paste("BIC = ", BIC_Linear), sep="\n")
+    paste("BIC = ", BIC_Linear, "\n"),
+    paste(colnames(df_Elastic_Engineered)), sep="\n")
 sink()
 
 cat(paste("Ames Linear Regression Model Results:"),
@@ -202,10 +205,12 @@ Elastic-Net Regression Model:
 
 df_Elastic_Engineered = select(df_akram, -c(PID, GarageType, Exterior2nd, Neighborhood_Int, AllBathrooms))
 
+write.csv(df_Elastic_Engineered, "df_Elastic_Engineered.csv")
+
 #Neighborhood_Int
 #AllBathrooms
 
-# As before. we split the data into a training and test set
+# As before, we split the data into a training and test set
 
 set.seed(200)
 

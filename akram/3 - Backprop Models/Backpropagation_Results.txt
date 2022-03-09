@@ -1,0 +1,5 @@
+Ames Backpropagation Neural Network Results:
+R^2 Test =  0.92210693768976
+RMSE Test =  0.046214853570423
+AIC =  229.361298931876
+BIC =  850.670992328545
