@@ -199,13 +199,142 @@ autoplot(predict, main ="ARIMA(3,1,0) Prediction on Split Sales", ylab="Average 
 
 
 
+#_________________________________________________________________________________SARIMA 
+#_seasonal differencing 
+
+purav %>% ungroup() %>% select(AvPrice) %>% ts() %>% diff(12) %>% plot.ts(main="Seasonal")
+purav %>%  ungroup() %>% select(AvPrice) %>% ts() %>% diff(12) %>% acf2(main="DTrad ACF/PACF Seasonal")
+
+purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% select(AvPrice) %>% ts() %>% diff(12) %>% plot.ts(main="DTrad Seasonal")
+purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% select(AvPrice) %>% ts() %>% diff(12) %>% acf2(main="DTrad ACF/PACF Seasonal")
+
+purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Duplex") %>% select(AvPrice) %>% ts() %>% diff(12)  %>% plot.ts(main="DDuplex Seasonal")
+purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Duplex") %>% select(AvPrice) %>% ts() %>% diff(12) %>% acf2(main="DDuplex ACF/PACF Seasonal")
+
+purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Split") %>% select(AvPrice) %>% ts() %>% diff(12)  %>% plot.ts(main="DDuplex Seasonal")
+purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Split") %>% select(AvPrice) %>% ts() %>% diff(12) %>% acf2(main="DDuplex ACF/PACF Seasonal")
+
+#_______________________________________SARIMA Full
+
+set <- purav %>% ungroup() %>% select(AvPrice) %>% ts()
+d= 2
+DD= 2
+p_max= 4
+q_max=2 
+p_s_max=4
+q_s_max= 2
+per= 12
+for(p in 1:p_max){
+  for(q in 1:q_max){
+    for(p_seasonal in 1:p_s_max){
+      for(q_seasonal in 1:q_s_max){
+        if(p+d+q+p_seasonal+DD+q_seasonal<=(p_max+q_max+p_s_max+q_s_max+d+DD)){
+          model<-arima(x=set, order = c((p-1),d,(q-1)), seasonal = list(order=c((p_seasonal-1),DD,(q_seasonal-1)), period=per))
+          pval<-Box.test(model$residuals, lag=log(length(model$residuals)))
+          sse<-sum(model$residuals^2)
+          cat(p-1,d,q-1,p_seasonal-1,DD,q_seasonal-1,per, 'AIC=', model$aic, ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+        }
+      }
+    }
+  }
+}
+#want p-value to be large, we want the residuals to be normal
+#Seems like SARIMA(3,2,1,1,2,1,12) is the best model by minimizing AIC 
+sarima = arima(x=set, order = c(3,2,1), seasonal = list(order = c(1,2,1), period = per))
+predict = forecast(sarima, h=24, level = 80)
+autoplot(predict) +ylab("Average House Price in $)")
 
 
 
+#_______________________________________SARIMA Traditional
+set <- purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% select(AvPrice) %>% ts() 
+d= 2
+DD= 2
+p_max= 2
+q_max=2 
+p_s_max=2
+q_s_max= 2
+per= 12
+for(p in 1:p_max){
+  for(q in 1:q_max){
+    for(p_seasonal in 1:p_s_max){
+      for(q_seasonal in 1:q_s_max){
+        if(p+d+q+p_seasonal+DD+q_seasonal<=(p_max+q_max+p_s_max+q_s_max+d+DD)){
+          model<-arima(x=set, order = c((p-1),d,(q-1)), seasonal = list(order=c((p_seasonal-1),DD,(q_seasonal-1)), period=per))
+          pval<-Box.test(model$residuals, lag=log(length(model$residuals)))
+          sse<-sum(model$residuals^2)
+          cat(p-1,d,q-1,p_seasonal-1,DD,q_seasonal-1,per, 'AIC=', model$aic, ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+        }
+      }
+    }
+  }
+}
+#want p-value to be large, we want the residuals to be normal
+#Seems like SARIMA(1,2,1,1,2,0,12) is the best model by minimizing AIC but this model itself is BAD!
+sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,0), period = per))
+predict = forecast(sarima, h=24, level = 80)
+autoplot(predict) +ylab("Average Traditional House Price in $") 
+
+
+#_______________________________________SARIMA Duplex
+set <- purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Duplex") %>% select(AvPrice) %>% ts() 
+d= 2
+DD= 2
+p_max= 2
+q_max=2 
+p_s_max=2
+q_s_max= 2
+per= 12
+for(p in 1:p_max){
+  for(q in 1:q_max){
+    for(p_seasonal in 1:p_s_max){
+      for(q_seasonal in 1:q_s_max){
+        if(p+d+q+p_seasonal+DD+q_seasonal<=(p_max+q_max+p_s_max+q_s_max+d+DD)){
+          model<-arima(x=set, order = c((p-1),d,(q-1)), seasonal = list(order=c((p_seasonal-1),DD,(q_seasonal-1)), period=per))
+          pval<-Box.test(model$residuals, lag=log(length(model$residuals)))
+          sse<-sum(model$residuals^2)
+          cat(p-1,d,q-1,p_seasonal-1,DD,q_seasonal-1,per, 'AIC=', model$aic, ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+        }
+      }
+    }
+  }
+}
+#want p-value to be large, we want the residuals to be normal
+#Seems like SARIMA(1,2,1,0,2,1,12) is the best model by minimizing AIC but this model itself is BAD!
+sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(0,2,1), period = per))
+predict = forecast(sarima, h=24, level = 80)
+autoplot(predict) +ylab("Average Duplex House Price in $") 
 
 
 
-
+#_______________________________________SARIMA Split
+set <- purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Split") %>% select(AvPrice) %>% ts() 
+d= 2
+DD= 2
+p_max= 2
+q_max=2 
+p_s_max=2
+q_s_max= 2
+per= 12
+for(p in 1:p_max){
+  for(q in 1:q_max){
+    for(p_seasonal in 1:p_s_max){
+      for(q_seasonal in 1:q_s_max){
+        if(p+d+q+p_seasonal+DD+q_seasonal<=(p_max+q_max+p_s_max+q_s_max+d+DD)){
+          model<-arima(x=set, order = c((p-1),d,(q-1)), seasonal = list(order=c((p_seasonal-1),DD,(q_seasonal-1)), period=per))
+          pval<-Box.test(model$residuals, lag=log(length(model$residuals)))
+          sse<-sum(model$residuals^2)
+          cat(p-1,d,q-1,p_seasonal-1,DD,q_seasonal-1,per, 'AIC=', model$aic, ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+        }
+      }
+    }
+  }
+}
+#want p-value to be large, we want the residuals to be normal
+#Seems like SARIMA(1,2,1,1,2,0,12) is the best model by minimizing AIC but this model itself is BAD!
+sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,0), period = per))
+predict = forecast(sarima, h=24, level = 80)
+autoplot(predict) +ylab("Average Split House Price in $")
 #__________________________________________________________________________________
 
 

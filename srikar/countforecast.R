@@ -220,3 +220,69 @@ arima = arima(set, order =c(0,1,1))
 predict = forecast(arima,h=12, level=80)
 autoplot(predict, main ="ARIMA(0,1,1) Prediction on Lower Demand", ylab="Average Weighted Demand ($)")
 
+
+#______________________________________________________________SEASONAL DIFFERENCING
+upwt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()%>% diff(6) %>% diff(6) %>%  autoplot()
+upwt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts() %>% diff(6)  %>% diff(6) %>%  acf2()
+lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()%>% diff(6) %>% diff(6) %>% autoplot()
+lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts() %>% diff(6) %>% acf2()
+
+
+#_________Upper SARIMA
+set <- upwt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
+d= 2
+DD= 2
+p_max= 2
+q_max=2 
+p_s_max=2
+q_s_max= 2
+per= 6
+for(p in 1:p_max){
+  for(q in 1:q_max){
+    for(p_seasonal in 1:p_s_max){
+      for(q_seasonal in 1:q_s_max){
+        if(p+d+q+p_seasonal+DD+q_seasonal<=(p_max+q_max+p_s_max+q_s_max+d+DD)){
+          model<-arima(x=set, order = c((p-1),d,(q-1)), seasonal = list(order=c((p_seasonal-1),DD,(q_seasonal-1)), period=per))
+          pval<-Box.test(model$residuals, lag=log(length(model$residuals)))
+          sse<-sum(model$residuals^2)
+          cat(p-1,d,q-1,p_seasonal-1,DD,q_seasonal-1,per, 'AIC=', model$aic, ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+        }
+      }
+    }
+  }
+}
+#want p-value to be large, we want the residuals to be normal
+#Seems like SARIMA(1,2,1,1,2,1,6) is the best model 
+sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,1), period = per))
+predict = forecast(sarima, h=24, level = 80)
+autoplot(predict) +ylab("Demand (Weighted Price in $)")
+
+#_________Lower SARIMA
+set <- lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
+d= 2
+DD= 2
+p_max= 2
+q_max=2 
+p_s_max=2
+q_s_max= 2
+per= 6
+for(p in 1:p_max){
+  for(q in 1:q_max){
+    for(p_seasonal in 1:p_s_max){
+      for(q_seasonal in 1:q_s_max){
+        if(p+d+q+p_seasonal+DD+q_seasonal<=(p_max+q_max+p_s_max+q_s_max+d+DD)){
+          model<-arima(x=set, order = c((p-1),d,(q-1)), seasonal = list(order=c((p_seasonal-1),DD,(q_seasonal-1)), period=per))
+          pval<-Box.test(model$residuals, lag=log(length(model$residuals)))
+          sse<-sum(model$residuals^2)
+          cat(p-1,d,q-1,p_seasonal-1,DD,q_seasonal-1,per, 'AIC=', model$aic, ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+        }
+      }
+    }
+  }
+}
+#want p-value to be large, we want the residuals to be normal
+#Seems like SARIMA(1,2,1,1,2,1,6) is the best model 
+sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,1), period = per))
+predict = forecast(sarima, h=24, level = 80)
+autoplot(predict) +ylab("Demand (Weighted Price in $)")
+
