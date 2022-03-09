@@ -4,9 +4,9 @@
 
 ```mermaid
 flowchart LR
-    d_r[(Ames_Real_Estate\n_Data.csv)]-->geo
-    d_TNX[(TNX)]-->geo
-    d_shapefile[(ames_school_districts_sf)]-->geo
+    d_r[(Ames_Real_Estate\n_Data.csv)]-->geopy
+    d_TNX[(TNX)]-->tnx
+    d_shapefile[(ames_school_districts_sf)]-->districts
     
     subgraph geo [New Features <various R/python>]
         direction LR
@@ -73,7 +73,6 @@ flowchart LR
         direction LR
         decision_tree>Decision Tree]
         arima>ARIMA]
-        backprop>Back Propagation]
         svr>SVR]
         
         decision_tree.->random_forest>Random Forest]
@@ -84,6 +83,5 @@ flowchart LR
     d_e-->lin_regression
     d_e-->decision_tree
     d_e-->arima
-    d_e-->backprop
     d_e-->svr
 ```
