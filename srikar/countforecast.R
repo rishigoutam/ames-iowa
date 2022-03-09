@@ -33,9 +33,14 @@ data$ntile <- as.factor(data$ntile)
 
 #making a different TS 
 tone <-data %>% group_by(date) %>% count() %>% as_tsibble(index = date) 
-tone %>% autoplot()
+tone %>% ggplot() + geom_line(aes(x=date,y=n))+ 
+  ylab("Number of Houses Sold") +
+  labs(title="Ames Housing Market", subtitle= "Moving towards quantifying housing demand")
 twotone <-data %>% group_by(date, ntile) %>% count() %>% as_tsibble(key = ntile, index = date) 
-twotone %>% autoplot()
+twotone %>% ggplot() +geom_line(aes(x=date, y=n, color=ntile)) + 
+  ylab("Number of Houses Sold") + 
+  labs(title="Upper and Lower Ames Housing Market", subtitle= "Notice in 2008 the trend switches; Recovery occurring in 2010" , color="2-tiles") 
+
 
 data %>% group_by(date) %>% count() %>%  ungroup() %>% select(n) %>% ts() %>% acf2(main="Total Market (#) ACF/PACF")
 data %>% group_by(date, ntile) %>%
@@ -236,7 +241,7 @@ p_max= 2
 q_max=2 
 p_s_max=2
 q_s_max= 2
-per= 6
+per= 12
 for(p in 1:p_max){
   for(q in 1:q_max){
     for(p_seasonal in 1:p_s_max){
@@ -252,10 +257,11 @@ for(p in 1:p_max){
   }
 }
 #want p-value to be large, we want the residuals to be normal
-#Seems like SARIMA(1,2,1,1,2,1,6) is the best model 
-sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,1), period = per))
+#Seems like SARIMA(1,2,1,1,2,0,12) is the best model 
+sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,0), period = per))
 predict = forecast(sarima, h=24, level = 80)
-autoplot(predict) +ylab("Demand (Weighted Price in $)")
+autoplot(predict) +ylab("Demand (Weighted Price in $)") + labs(title ="Two-Year SARIMA(1,2,1,1,2,1,12) Prediction for Upper Two-Tile Housing Demand") +
+  xlab("Months from Jan 2006")
 
 #_________Lower SARIMA
 set <- lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
@@ -265,7 +271,7 @@ p_max= 2
 q_max=2 
 p_s_max=2
 q_s_max= 2
-per= 6
+per= 12
 for(p in 1:p_max){
   for(q in 1:q_max){
     for(p_seasonal in 1:p_s_max){
@@ -281,8 +287,12 @@ for(p in 1:p_max){
   }
 }
 #want p-value to be large, we want the residuals to be normal
-#Seems like SARIMA(1,2,1,1,2,1,6) is the best model 
-sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,1), period = per))
+#Seems like SARIMA(1,2,1,1,2,0,12) is the best model 
+sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,0), period = per))
 predict = forecast(sarima, h=24, level = 80)
-autoplot(predict) +ylab("Demand (Weighted Price in $)")
+autoplot(predict) +ylab("Demand (Weighted Price in $)")+ ylab("Demand (Weighted Price in $)") + labs(title ="Two-Year SARIMA(1,2,1,1,2,1,12) Prediction for Lower Two-Tile Housing Demand") +
+  xlab("Months from Jan 2006")
 
+
+
+#________________________________________Train/Test 

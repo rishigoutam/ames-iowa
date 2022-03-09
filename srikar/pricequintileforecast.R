@@ -27,7 +27,7 @@ data <- data %>% mutate(quartile = ntile(SalePrice,5))
 data <- data %>% select(date, quartile , SalePrice)
 data$quartile <- as.factor(data$quartile)
 #this should be obvious
-order3 <- data %>% group_by(quartile) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+data %>% group_by(quartile) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
   arrange(desc(AvPrice))
 
 
@@ -48,8 +48,11 @@ avdata<- avdata %>% as_tsibble(key=quartile, index = date) #Avdata is tidy, tsib
 
 #______________________________________________Basic Plotting
 
-avdata %>% autoplot()
-purav %>% as_tsibble(index= date) %>% autoplot() #plotting total together 
+avdata %>% ggplot() + geom_line(aes(x=date, y=AvPrice, color=quartile)) + 
+  labs(title="Quintiles of Housing Price over Time", subtitle="Notice Overall Price stability and Differences in Variance between Quintiles", color="Quintile") + 
+  ylab("Average Price ($)") +xlab("Date (Monthly)")
+
+purav %>% as_tsibble(index= date) %>% autoplot() 
 plot.ts(av.ts) #This doesnt work multivariate as expected
 purav %>% ungroup() %>% select(AvPrice) %>% ts() %>% plot.ts()
 acf(av.ts) 
@@ -165,12 +168,12 @@ fiidiff %>% as.data.frame() %>% ungroup() %>% select(AvPrice)  %>% ts()%>% acf2(
 #Differencing? 
 
 #Ljung-Box Test---We want to reject NH (), looking for p< .05
-Box.test(pur.ts,type="Ljung-Box", lag= log(nrow(pur.ts))) # p = .99
-Box.test(o.ts,type="Ljung-Box", lag= log(nrow(o.ts))) # p =.14
-Box.test(t.ts,type="Ljung-Box", lag= log(nrow(t.ts))) # p = .34
-Box.test(th.ts,type="Ljung-Box", lag= log(nrow(th.ts))) # p = .94
-Box.test(fo.ts,type="Ljung-Box", lag= log(nrow(fo.ts))) # p = .33
-Box.test(fi.ts,type="Ljung-Box", lag= log(nrow(fi.ts))) # p = .31
+test1<- Box.test(pur.ts,type="Ljung-Box", lag= log(nrow(pur.ts))) # p = .99
+test2<- Box.test(o.ts,type="Ljung-Box", lag= log(nrow(o.ts))) # p =.14
+test3<- Box.test(t.ts,type="Ljung-Box", lag= log(nrow(t.ts))) # p = .34
+test4<- Box.test(th.ts,type="Ljung-Box", lag= log(nrow(th.ts))) # p = .94
+test5<- Box.test(fo.ts,type="Ljung-Box", lag= log(nrow(fo.ts))) # p = .33
+test6<- Box.test(fi.ts,type="Ljung-Box", lag= log(nrow(fi.ts))) # p = .31
 
 #So just as we imagined---the average prices of homes follow the white noise distribution,
 # and are perfectly stationary over time. 

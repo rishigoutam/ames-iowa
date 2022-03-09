@@ -11,6 +11,28 @@ library(forecast)
 library(astsa)
 library(tsdl)
 
+AICBIC=function(fit, type){
+  if (length(deviance(fit))==1) {
+    tLL = -deviance(fit)  
+    edf = fit$df
+    n = nobs(fit)
+  } else if (length(deviance(fit$finalModel))>1) {
+    tLL = -min(deviance(fit$finalModel))
+    edf = fit$finalModel$df[which.min(deviance(fit$finalModel))]
+    n = fit$finalModel$nobs
+  }
+  AIC_ = -tLL + 2*edf
+  BIC_ = log(n)*edf - tLL
+  if (identical(type,"aic")|identical(type,"AIC")) {
+    return(AIC_)
+  } else if (identical(type,"bic")|identical(type,"BIC")) {
+    return(BIC_)
+  } else {
+    return("Error! Unknown type") 
+  }
+}
+
+
 #Predictions by Subclass
 
 '_______GOOD________Same Process, just for MS_SubClass instead'
@@ -27,7 +49,7 @@ data$date <- yearmonth(data$DateSold)
 data <- data %>% select(district, date, Collapse_MSSubClass , SalePrice)
 
 #Ordering
-order2 <- data %>% group_by(Collapse_MSSubClass) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
+data %>% group_by(Collapse_MSSubClass) %>% summarise_at(vars(SalePrice), list(AvPrice = mean)) %>%
   arrange(desc(AvPrice))
 
 #Average over feature
@@ -109,7 +131,8 @@ for(p in 1:p_max){
       model <- arima(set, order=c((p-1),d,(q-1))  ) 
       pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
       sse = sum(model$residuals^2)
-      cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
+      cat(p-1,d,q-1,'AIC: ', model$aic ,
+          'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
       
     }
   }
@@ -220,9 +243,9 @@ set <- purav %>% ungroup() %>% select(AvPrice) %>% ts()
 d= 2
 DD= 2
 p_max= 4
-q_max=2 
+q_max=3 
 p_s_max=4
-q_s_max= 2
+q_s_max= 3
 per= 12
 for(p in 1:p_max){
   for(q in 1:q_max){
@@ -239,10 +262,11 @@ for(p in 1:p_max){
   }
 }
 #want p-value to be large, we want the residuals to be normal
-#Seems like SARIMA(3,2,1,1,2,1,12) is the best model by minimizing AIC 
-sarima = arima(x=set, order = c(3,2,1), seasonal = list(order = c(1,2,1), period = per))
-predict = forecast(sarima, h=24, level = 80)
-autoplot(predict) +ylab("Average House Price in $)")
+#Seems like SARIMA(1,2,2,0,2,2,12) is the best model by minimizing AIC 
+sarima = arima(x=set, order = c(1,2,2), seasonal = list(order = c(0,2,2), period = per))
+predict = forecast(sarima, h=12, level = 80)
+autoplot(predict) +ylab("Average House Price in $)") + labs(title ="One-Year SARIMA(1,2,2,1,2,1,12) Prediction for Housing Price") +
+  xlab("Months from Jan 2006")
 
 
 
@@ -251,9 +275,9 @@ set <- purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% 
 d= 2
 DD= 2
 p_max= 2
-q_max=2 
+q_max=3 
 p_s_max=2
-q_s_max= 2
+q_s_max= 3
 per= 12
 for(p in 1:p_max){
   for(q in 1:q_max){
@@ -270,10 +294,11 @@ for(p in 1:p_max){
   }
 }
 #want p-value to be large, we want the residuals to be normal
-#Seems like SARIMA(1,2,1,1,2,0,12) is the best model by minimizing AIC but this model itself is BAD!
-sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,0), period = per))
-predict = forecast(sarima, h=24, level = 80)
-autoplot(predict) +ylab("Average Traditional House Price in $") 
+#Seems like SARIMA(1,2,2,1,2,0,12) is the best model by minimizing AIC
+sarima = arima(x=set, order = c(1,2,2), seasonal = list(order = c(1,2,0), period = per))
+predict = forecast(sarima, h=12, level = 80)
+autoplot(predict) +ylab("Average Traditional House Price in $") + labs(title ="One-Year SARIMA(1,2,2,1,2,0,12) Prediction for Traditional Houses") +
+  xlab("Months from Jan 2006")
 
 
 #_______________________________________SARIMA Duplex
@@ -281,9 +306,9 @@ set <- purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Duplex") %>% selec
 d= 2
 DD= 2
 p_max= 2
-q_max=2 
+q_max=3 
 p_s_max=2
-q_s_max= 2
+q_s_max= 3
 per= 12
 for(p in 1:p_max){
   for(q in 1:q_max){
@@ -300,10 +325,12 @@ for(p in 1:p_max){
   }
 }
 #want p-value to be large, we want the residuals to be normal
-#Seems like SARIMA(1,2,1,0,2,1,12) is the best model by minimizing AIC but this model itself is BAD!
-sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(0,2,1), period = per))
-predict = forecast(sarima, h=24, level = 80)
-autoplot(predict) +ylab("Average Duplex House Price in $") 
+#Seems like SARIMA(0,2,2,1,2,0,12) is the best model by minimizing AIC 
+sarima = arima(x=set, order = c(0,2,2), seasonal = list(order = c(1,2,0), period = per))
+predict = forecast(sarima, h=12, level = 80)
+autoplot(predict) +ylab("Average Duplex House Price in $") + labs(title ="One-Year SARIMA(1,2,2,1,2,0,12) Prediction for Duplex Houses", 
+                                                                  subtitle= "AIC= 638.9534  SSE= 22895751131  p-VALUE= 0.9594683") +
+  xlab("Months from Jan 2006")
 
 
 
@@ -312,9 +339,9 @@ set <- purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Split") %>% select
 d= 2
 DD= 2
 p_max= 2
-q_max=2 
+q_max=3 
 p_s_max=2
-q_s_max= 2
+q_s_max= 3
 per= 12
 for(p in 1:p_max){
   for(q in 1:q_max){
@@ -331,11 +358,53 @@ for(p in 1:p_max){
   }
 }
 #want p-value to be large, we want the residuals to be normal
-#Seems like SARIMA(1,2,1,1,2,0,12) is the best model by minimizing AIC but this model itself is BAD!
+#Seems like SARIMA(1,2,1,1,2,0,12) is the best model by minimizing AIC 
 sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,0), period = per))
-predict = forecast(sarima, h=24, level = 80)
-autoplot(predict) +ylab("Average Split House Price in $")
+predict = forecast(sarima, h=12, level = 80)
+autoplot(predict) +ylab("Average Split House Price in $")+ labs(title ="One-Year SARIMA(1,2,1,1,2,0,12) Prediction for Split Houses", 
+                                                                subtitle= "AIC= 596.099  SSE= 22862993193  p-VALUE= 0.5290007") +
+  xlab("Months from Jan 2006")
 #__________________________________________________________________________________
+
+
+#____________________________________Train Test Models
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
