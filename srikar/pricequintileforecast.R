@@ -259,7 +259,9 @@ components(mdl_1) #model
 components(mdl_2) #Null  (data is white noise approx around average?)
 components(mdl_3) #Null  (data is white noise approx around average?)
 components(mdl_4) #model
-components(mdl_5) #model
+components(mdl_5)  %>% autoplot() #model
+
+
 
 two %>% autoplot()
 three %>% autoplot()
