@@ -47,10 +47,10 @@ purav %>% ungroup() %>% select(AvPrice) %>% ts() %>% acf2(main="All Data ACF/PAC
 #No need to log-transform, doesn't seem like variance is increasing over time
 
 #We Need to Do some dIfferencing 
-purav %>%  ungroup() %>% select(AvPrice) %>% ts() %>% diff(1) %>% acf2(main="1diff ACF")
+purav %>%  ungroup() %>% select(AvPrice) %>% ts() %>% diff(1) %>% acf2(main="1diff ACF/PACF")
 purav %>%  ungroup() %>% select(AvPrice) %>% ts() %>% diff(1) %>% plot.ts(main="1diff All Data") 
 #double differencing introduces too much negative residue in PACF
-purav %>%  ungroup() %>% select(AvPrice) %>% ts() %>% diff(1) %>%  diff(1) %>% acf2(main="2Diff ACF--note increased residue")
+purav %>%  ungroup() %>% select(AvPrice) %>% ts() %>% diff(1) %>%  diff(1) %>% acf2(main="2Diff ACF/PACF--note increased residue")
 
 
 
