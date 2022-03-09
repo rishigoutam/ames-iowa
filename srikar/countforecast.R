@@ -178,53 +178,53 @@ lowt.d %>% Box.test(type="Ljung-Box", lag = log(length(lowt.d))) #p=.013
 
 
 
-#_________________________________________________________________________ARIMA
-#
-
-#Upper Demand
-set <-upwt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
-d =1
-p_max = 2
-q_max = 2
-for(p in 1:p_max){
-  for(q in 1:q_max){
-    if(p+q+d<=(d+q_max+p_max)){
-      model <- arima(set, order=c((p-1),d,(q-1))  ) 
-      pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
-      sse = sum(model$residuals^2)
-      cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
-      
-    }
-  }
-}
-
-#looks like 0,1,1 model is best
-arima = arima(set, order =c(0,1,1))
-predict = forecast(arima,h=12, level=80)
-autoplot(predict, main ="ARIMA(0,1,1) Prediction on Upper Demand", ylab="Average Weighted Demand ($)")
-
-#Lower Demand
-set <-lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
-d =1
-p_max = 2
-q_max = 2
-for(p in 1:p_max){
-  for(q in 1:q_max){
-    if(p+q+d<=(d+q_max+p_max)){
-      model <- arima(set, order=c((p-1),d,(q-1))  ) 
-      pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
-      sse = sum(model$residuals^2)
-      cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
-      
-    }
-  }
-}
-
-#looks like 0,1,1 model is best
-arima = arima(set, order =c(0,1,1))
-predict = forecast(arima,h=12, level=80)
-autoplot(predict, main ="ARIMA(0,1,1) Prediction on Lower Demand", ylab="Average Weighted Demand ($)")
-
+# #_________________________________________________________________________ARIMA
+# #
+# 
+# #Upper Demand
+# set <-upwt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
+# d =1
+# p_max = 2
+# q_max = 2
+# for(p in 1:p_max){
+#   for(q in 1:q_max){
+#     if(p+q+d<=(d+q_max+p_max)){
+#       model <- arima(set, order=c((p-1),d,(q-1))  ) 
+#       pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
+#       sse = sum(model$residuals^2)
+#       cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
+#       
+#     }
+#   }
+# }
+# 
+# #looks like 0,1,1 model is best
+# arima = arima(set, order =c(0,1,1))
+# predict = forecast(arima,h=12, level=80)
+# autoplot(predict, main ="ARIMA(0,1,1) Prediction on Upper Demand", ylab="Average Weighted Demand ($)")
+# 
+# #Lower Demand
+# set <-lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
+# d =1
+# p_max = 2
+# q_max = 2
+# for(p in 1:p_max){
+#   for(q in 1:q_max){
+#     if(p+q+d<=(d+q_max+p_max)){
+#       model <- arima(set, order=c((p-1),d,(q-1))  ) 
+#       pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
+#       sse = sum(model$residuals^2)
+#       cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
+#       
+#     }
+#   }
+# }
+# 
+# #looks like 0,1,1 model is best
+# arima = arima(set, order =c(0,1,1))
+# predict = forecast(arima,h=12, level=80)
+# autoplot(predict, main ="ARIMA(0,1,1) Prediction on Lower Demand", ylab="Average Weighted Demand ($)")
+# 
 
 #______________________________________________________________SEASONAL DIFFERENCING
 upwt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()%>% diff(6) %>% diff(6) %>%  autoplot()

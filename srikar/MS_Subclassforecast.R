@@ -117,110 +117,110 @@ splt.d %>% Box.test(type="Ljung-Box", lag = log(nrow(splt.d))) #p = .006
 #These are all significant autocorrelations--an ARIMA model would be useful here. 
 
 
-#_________________________________________________________________________ARIMA
-#
-# total--Arima model, MA(q), d, AR(p)
-#q = 1 from ACF, p=4 from PACF, and d=1 since we differenced once
-set <-purav %>%  ungroup() %>% select(AvPrice) %>% ts() 
-d=1
-p_max=4
-q_max=1
-for(p in 1:p_max){
-  for(q in 1:q_max){
-    if(p+q+d<=(d+q_max+p_max)){
-      model <- arima(set, order=c((p-1),d,(q-1))  ) 
-      pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
-      sse = sum(model$residuals^2)
-      cat(p-1,d,q-1,'AIC: ', model$aic ,
-          'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
-      
-    }
-  }
-}
-
-#looks like 3,1,0 model has lowest AIC but p-value isn't good (we should be accepting Null)
-arima = arima(set, order =c(3,1,0))
-predict = forecast(arima,h=12, level=80)
-autoplot(predict, main ="ARIMA(3,1,0) Prediction on Total Sales", ylab="Average Price ($)")
-
-
-#Not a great model
-
-
-
-#Traditional ARIMA model 
-#q = 1, p= 2, d =1
-#
-
-set <-purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>%select(AvPrice) %>% ts() 
-d=1
-p_max=2
-q_max=1
-for(p in 1:p_max){
-  for(q in 1:q_max){
-    if(p+q+d<=(d+q_max+p_max)){
-      model <- arima(set, order=c((p-1),d,(q-1))  ) 
-      pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
-      sse = sum(model$residuals^2)
-      cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
-      
-    }
-  }
-}
-#110 is a good model, with high p-value and low aic
-arima = arima(set, order =c(1,1,0))
-predict = forecast(arima,h=12, level=80)
-autoplot(predict, main ="ARIMA(1,1,0) Prediction on Traditional Sales", ylab="Average Price ($)")
-
-#Duplex ARIMA model
-#q = 1, p=1, d=1
-#
-set <-purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Duplex") %>%select(AvPrice) %>% ts() 
-d=2
-p_max=2
-q_max=2
-for(p in 1:p_max){
-  for(q in 1:q_max){
-    if(p+q+d<=(d+q_max+p_max)){
-      model <- arima(set, order=c((p-1),d,(q-1))  ) 
-      pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
-      sse = sum(model$residuals^2)
-      cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
-      
-    }
-  }
-}
-#looks like 121 is best
-arima = arima(set, order =c(1,2,1))
-predict = forecast(arima,h=12, level=80)
-autoplot(predict, main ="ARIMA(1,2,1) Prediction on Duplex Sales", ylab="Average Price ($)")
-
-
-#Split ARIMA model 
-#q=1, p=1, d=1 
-set <-purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Split") %>%select(AvPrice) %>% ts() 
-d=2
-p_max=2
-q_max=2
-for(p in 1:p_max){
-  for(q in 1:q_max){
-    if(p+q+d<=(d+q_max+p_max)){
-      model <- arima(set, order=c((p-1),d,(q-1))  ) 
-      pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
-      sse = sum(model$residuals^2)
-      cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
-      
-    }
-  }
-}
-
-
-arima = arima(set, order =c(1,2,1))
-predict = forecast(arima,h=12, level=80)
-autoplot(predict, main ="ARIMA(3,1,0) Prediction on Split Sales", ylab="Average Price ($)")
-
-
-
+# #_________________________________________________________________________ARIMA
+# #
+# # total--Arima model, MA(q), d, AR(p)
+# #q = 1 from ACF, p=4 from PACF, and d=1 since we differenced once
+# set <-purav %>%  ungroup() %>% select(AvPrice) %>% ts() 
+# d=1
+# p_max=4
+# q_max=1
+# for(p in 1:p_max){
+#   for(q in 1:q_max){
+#     if(p+q+d<=(d+q_max+p_max)){
+#       model <- arima(set, order=c((p-1),d,(q-1))  ) 
+#       pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
+#       sse = sum(model$residuals^2)
+#       cat(p-1,d,q-1,'AIC: ', model$aic ,
+#           'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
+#       
+#     }
+#   }
+# }
+# 
+# #looks like 3,1,0 model has lowest AIC but p-value isn't good (we should be accepting Null)
+# arima = arima(set, order =c(3,1,0))
+# predict = forecast(arima,h=12, level=80)
+# autoplot(predict, main ="ARIMA(3,1,0) Prediction on Total Sales", ylab="Average Price ($)")
+# 
+# 
+# #Not a great model
+# 
+# 
+# 
+# #Traditional ARIMA model 
+# #q = 1, p= 2, d =1
+# #
+# 
+# set <-purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>%select(AvPrice) %>% ts() 
+# d=1
+# p_max=2
+# q_max=1
+# for(p in 1:p_max){
+#   for(q in 1:q_max){
+#     if(p+q+d<=(d+q_max+p_max)){
+#       model <- arima(set, order=c((p-1),d,(q-1))  ) 
+#       pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
+#       sse = sum(model$residuals^2)
+#       cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
+#       
+#     }
+#   }
+# }
+# #110 is a good model, with high p-value and low aic
+# arima = arima(set, order =c(1,1,0))
+# predict = forecast(arima,h=12, level=80)
+# autoplot(predict, main ="ARIMA(1,1,0) Prediction on Traditional Sales", ylab="Average Price ($)")
+# 
+# #Duplex ARIMA model
+# #q = 1, p=1, d=1
+# #
+# set <-purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Duplex") %>%select(AvPrice) %>% ts() 
+# d=2
+# p_max=2
+# q_max=2
+# for(p in 1:p_max){
+#   for(q in 1:q_max){
+#     if(p+q+d<=(d+q_max+p_max)){
+#       model <- arima(set, order=c((p-1),d,(q-1))  ) 
+#       pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
+#       sse = sum(model$residuals^2)
+#       cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
+#       
+#     }
+#   }
+# }
+# #looks like 121 is best
+# arima = arima(set, order =c(1,2,1))
+# predict = forecast(arima,h=12, level=80)
+# autoplot(predict, main ="ARIMA(1,2,1) Prediction on Duplex Sales", ylab="Average Price ($)")
+# 
+# 
+# #Split ARIMA model 
+# #q=1, p=1, d=1 
+# set <-purav %>%  ungroup() %>% filter(Collapse_MSSubClass == "Split") %>%select(AvPrice) %>% ts() 
+# d=2
+# p_max=2
+# q_max=2
+# for(p in 1:p_max){
+#   for(q in 1:q_max){
+#     if(p+q+d<=(d+q_max+p_max)){
+#       model <- arima(set, order=c((p-1),d,(q-1))  ) 
+#       pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
+#       sse = sum(model$residuals^2)
+#       cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
+#       
+#     }
+#   }
+# }
+# 
+# 
+# arima = arima(set, order =c(1,2,1))
+# predict = forecast(arima,h=12, level=80)
+# autoplot(predict, main ="ARIMA(3,1,0) Prediction on Split Sales", ylab="Average Price ($)")
+# 
+# 
+# 
 
 #_________________________________________________________________________________SARIMA 
 #_seasonal differencing 
@@ -369,7 +369,7 @@ autoplot(predict) +ylab("Average Split House Price in $")+ labs(title ="One-Year
 
 #____________________________________Train Test Models
 
-
+#Not sure how to do this and approach crossvalidation
 
 
 
