@@ -45,3 +45,4 @@ TotRmsAbvGrd
 BedroomAbvGr
 HeatingQC
 CentralAir
+MSZoning_Int

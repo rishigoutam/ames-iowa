@@ -1,9 +1,9 @@
 Ames Elastic Regression Model Results:
-R^2 Train =  0.93306599933035
-R^2 Test =  0.92210693768976
-RMSE Test =  0.046214853570423
-AIC =  229.361298931876
-BIC =  850.670992328545
+R^2 Train =  0.933065999245254
+R^2 Test =  0.922106937556801
+RMSE Test =  0.0462148536058301
+AIC =  231.359884556419
+BIC =  858.167893823855
 Alpha =  0.5
 Lambda =  0.000781805133281192
 
@@ -125,4 +125,5 @@ Functional
 TotRmsAbvGrd
 BedroomAbvGr
 HeatingQC
-CentralAirY
+CentralAir
+MSZoning_Int

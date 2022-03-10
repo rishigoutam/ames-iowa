@@ -1,0 +1,214 @@
+GrLivArea
+Neighborhood_Int
+Age
+
+(4,0)
+
+Ames Backpropagation Neural Network Results:
+R^2 Test =  0.761362239278483
+RMSE Test =  0.048286212561997
+AIC =  45.7655727488687
+BIC =  161.206924436138
+
+Ames Linear Regression Model Results:
+R^2 Training =  0.785641864209114
+R^2 Test =  0.745564933814352
+RMSE Test =  0.0848675318233864
+GVIF Max =  3.85468075752813
+AIC =  3612.84020068217
+BIC =  13515.3070839335
+
+
+GrLivArea
+Neighborhood_Int
+Age
+IsOnMainroad
+IsNearRailroad
+OverallQual
+
+Ames Backpropagation Neural Network Results:
+R^2 Test =  0.830312215695775
+RMSE Test =  0.0407172884609748
+AIC =  116.312103183155
+BIC =  429.652914905744
+
+Ames Linear Regression Model Results:
+R^2 Training =  0.841184700078012
+R^2 Test =  0.817981725582459
+RMSE Test =  0.0717779257136673
+GVIF Max =  3.85468075752813
+AIC =  3604.01799284728
+BIC =  13489.9899284863
+
+
+
+GrLivArea
+Neighborhood_Int
+Age
+IsOnMainroad
+IsNearRailroad
+OverallQual
+KitchenQual
+GarageQual
+
+Ames Backpropagation Neural Network Results:
+R^2 Test =  0.840992283252393
+RMSE Test =  0.039415102474637
+AIC =  184.204669458468
+BIC =  684.45052676997
+
+Ames Linear Regression Model Results:
+R^2 Training =  0.851340412051182
+R^2 Test =  0.832368053394137
+RMSE Test =  0.0689105400661003
+GVIF Max =  3.85468075752813
+AIC =  3599.49692031994
+BIC =  13474.4722242174
+
+
+
+GrLivArea
+Neighborhood_Int
+Age
+IsOnMainroad
+IsNearRailroad
+OverallQual
+KitchenQual
+GarageQual
+GarageCars
+
+Ames Backpropagation Neural Network Results:
+R^2 Test =  0.838458883274035
+RMSE Test =  0.0397278534080728
+AIC =  224.15238771759
+BIC =  834.342389493158
+
+
+GrLivArea
+Neighborhood_Int
+Age
+IsOnMainroad
+IsNearRailroad
+OverallQual
+KitchenQual
+GarageQual
+AllBathrooms
+
+Ames Backpropagation Neural Network Results (10,0):
+R^2 Test =  0.846977151725323
+RMSE Test =  0.0386662184306563
+AIC =  224.059397356487
+BIC =  834.249399132055
+
+
+
+
+GrLivArea
+Neighborhood_Int
+Age
+StreetAlley
+IsOnMainroad
+IsNearRailroad
+OverallQual
+ExterQual
+BsmtExposure
+TotalBsmtSF
+KitchenQual
+GarageQual
+ScreenPorch
+AllBathrooms
+BedroomAbvGr
+
+Ames Backpropagation Neural Network Results:
+R^2 Test =  0.869471266284353
+RMSE Test =  0.035711379071693
+AIC =  275.545698904859
+BIC =  1028.66308848371
+
+
+
+
+GrLivArea
+Neighborhood_Int
+Age
+StreetAlley
+IsOnMainroad
+IsNearRailroad
+OverallQual
+ExterQual
+BsmtExposure
+TotalBsmtSF
+KitchenQual
+GarageQual
+ScreenPorch
+AllBathrooms
+CentralAir
+BedroomAbvGr
+
+Ames Backpropagation Neural Network Results (9,0):
+R^2 Test =  0.874450916886373
+RMSE Test =  0.035023563530255
+AIC =  327.595397531404
+BIC =  1223.64017491354
+
+
+
+
+GrLivArea
+Neighborhood_Int
+Age
+StreetAlley
+MSZoning_Int
+IsOnMainroad
+IsNearRailroad
+OverallQual
+OverallCond
+external
+BsmtExposure
+TotalBsmtSF
+KitchenQual
+GarageQual
+AllBathrooms
+CentralAir
+BedroomAbvGr
+HeatingQC
+
+Ames Backpropagation Neural Network Results (11,0):
+R^2 Test =  0.892750436347021
+RMSE Test =  0.032370643006803
+AIC =  443.176387297015
+BIC =  1658.05918362495
+
+
+
+---------------------------------
+BEST BACKPROP MODEL
+Threshold = 0.05
+(11, 6)
+
+GrLivArea
+Neighborhood_Int
+Age
+StreetAlley
+MSZoning_Int
+IsOnMainroad
+IsNearRailroad
+OverallQual
+OverallCond
+external
+BsmtExposure
+TotalBsmtSF
+KitchenQual
+GarageQual
+AllBathrooms
+CentralAir
+BedroomAbvGr
+HeatingQC
+
+Ames Backpropagation Neural Network Results:
+R^2 Train =  0.936547841772476
+R^2 Test =  0.895032649019097
+RMSE Test =  0.0320243761262406
+AIC =  577.133351151328
+BIC =  2160.32903143388
+

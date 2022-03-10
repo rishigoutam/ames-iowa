@@ -37,7 +37,7 @@ Import dataframe:
 
 df_backprop = read.csv("~/Desktop/NYCDSA/Homework/Project3/Akram/2 - Regression Models/df_Backprop_Engineered.csv", stringsAsFactors = TRUE)
 
-df_backprop_engineered = select(df_backprop, -c(X, PID, Neighborhood, RoofStyle, Exterior1st, MSZoning, Foundation, Heating, GarageFinish, SaleCondition, HouseStyle, CentralAir, BsmtFullBath, FullBath, BldgType, GarageType, Exterior2nd))
+df_backprop_engineered = select(df_backprop, -c(X, PID, Neighborhood, RoofStyle, Exterior1st, MSZoning, Foundation, Heating, GarageFinish, SaleCondition, HouseStyle, BsmtFullBath, FullBath, BldgType, GarageType, Exterior2nd))
 
 head(df_backprop_engineered)
 
@@ -73,54 +73,81 @@ train.data = maxmindf[training.samples, ]
 test.data = maxmindf[-training.samples, ]
 
 ```
+ 
 
-
-Neural Network - Backpropagation (37,2) layer
+Neural Network - Backpropagation (36,2) layer
 
 ```{r}
 
 # Implementation of Neural Network
 
 ames_backprop = neuralnet(logSalePrice ~
-                    GrLivArea + LotArea +
-                    Neighborhood_Int + Age + 
-                    StreetAlley + RemodSinceBuilt +
-                    LotShape + LandContour +
-                    LandSlope + LotConfig +
-                    IsOnMainroad + IsNearPark +
-                    IsNearRailroad + BsmtQual +
-                    OverallQual + OverallCond +
-                    ExterQual + BsmtExposure + Rate +
-                    TotalBsmtSF +  KitchenQual + 
-                    Fireplaces + GarageQual + 
-                    GarageCond + GarageCars +                      
-                    KitchenAbvGr + PavedDrive + 
-                    EnclosedPorch + ScreenPorch + 
-                    AllBathrooms + FireplaceQu + 
-                    Functional + TotRmsAbvGrd + 
-                    BedroomAbvGr + HeatingQC,
+                    GrLivArea + #LotArea +
+                    Neighborhood_Int + 
+                      Age +
+                    StreetAlley + 
+                    MSZoning_Int +
+                      #RemodSinceBuilt +
+                    #LotShape + 
+                      #LandContour +
+                    #LandSlope + 
+                      #LotConfig +
+                    IsOnMainroad + 
+                      #IsNearPark +
+                    IsNearRailroad +
+                      #BsmtQual +
+                    OverallQual + 
+                      OverallCond +
+                    ExterQual + 
+                      BsmtExposure + 
+                      #Rate +
+                    TotalBsmtSF +  
+                      KitchenQual + 
+                    #Fireplaces + 
+                      GarageQual + 
+                    #GarageCond + 
+                      #GarageCars +                      
+                    #KitchenAbvGr + 
+                      #PavedDrive + 
+                    #EnclosedPorch + 
+                      #ScreenPorch + 
+                    AllBathrooms + 
+                      CentralAir +
+                      #FireplaceQu + 
+                    #Functional + 
+                      #TotRmsAbvGrd + 
+                    BedroomAbvGr + 
+                      HeatingQC,
                   data = train.data, likelihood = TRUE, 
-                  hidden=c(36,2), linear.output=FALSE, threshold=0.01)
+                  hidden=c(11,6), linear.output=TRUE, threshold=0.005)
 
 # Neural network results
 
 ames_backprop$result.matrix
 
-pdf("Backprop_Diagram.pdf")
-plot(ames_backprop)
-dev.off()
+plot(ames_backprop, file="Backprop_Diagram")
 
 ames_backprop$net.result
 
-# Test the resulting output
+# Test the resulting output with test.data
 
 testset = select(test.data, -logSalePrice)
 
-nn.results = compute(ames_backprop, testset)
+nn.results_test = compute(ames_backprop, testset)
 
-results = data.frame(actual = test.data$logSalePrice, prediction = nn.results$net.result)
+results_test = data.frame(actual = test.data$logSalePrice, prediction = nn.results_test$net.result)
 
-results
+results_test
+
+# Test the resulting output with train.data for R2_Train
+
+trainset = select(train.data, -logSalePrice)
+
+nn.results_train = compute(ames_backprop, trainset)
+
+results_train = data.frame(actual = train.data$logSalePrice, prediction = nn.results_train$net.result)
+
+results_train
 
 ```
 
@@ -129,13 +156,16 @@ results
 
 ```{r}
 
-r2_general <-function(actual, preds){ 
-  return(1- sum((preds - actual) ^ 2)/sum((actual - mean(actual))^2))
-}
+R2_general = function(actual, predictions){
+                rsquared = 1 - sum((predictions - actual)^2)/sum((actual - mean(actual))^2)
+                return(rsquared)
+              }
 
-R2_Backprop_Test = r2_general(results$actual, results$prediction)
+R2_Backprop_Train = R2_general(results_train$actual, results_train$prediction)
 
-RMSE_Backprop_Test = rmse(results$actual, results$prediction)
+R2_Backprop_Test = R2_general(results_test$actual, results_test$prediction)
+
+RMSE_Backprop_Test = rmse(results_test$actual, results_test$prediction)
 
 AIC_Backprop = as.double(ames_backprop$result.matrix["aic",1])
 
@@ -149,89 +179,18 @@ BIC_Backprop = as.double(ames_backprop$result.matrix["bic",1])
 
 sink("Backpropagation_Results.txt")
 cat(paste("Ames Backpropagation Neural Network Results:"),
-    paste("R^2 Test = ", R2_Elastic_Test),
-    paste("RMSE Test = ", RMSE_Elastic_Test),
-    paste("AIC = ", AIC_Elastic),
-    paste("BIC = ", BIC_Elastic), sep="\n")
+    paste("R^2 Train = ", R2_Backprop_Train),
+    paste("R^2 Test = ", R2_Backprop_Test),
+    paste("RMSE Test = ", RMSE_Backprop_Test),
+    paste("AIC = ", AIC_Backprop),
+    paste("BIC = ", BIC_Backprop), sep="\n")
 sink()
 
 cat(paste("Ames Backpropagation Neural Network Results:"),
-    paste("R^2 Test = ", R2_Elastic_Test),
-    paste("RMSE Test = ", RMSE_Elastic_Test),
-    paste("AIC = ", AIC_Elastic),
-    paste("BIC = ", BIC_Elastic), sep="\n")
+    paste("R^2 Train = ", R2_Backprop_Train),
+    paste("R^2 Test = ", R2_Backprop_Test),
+    paste("RMSE Test = ", RMSE_Backprop_Test),
+    paste("AIC = ", AIC_Backprop),
+    paste("BIC = ", BIC_Backprop), sep="\n")
 
 ```
-
-
-
-
-
-
-
-
-
-
-
-+ # logSalePrice ~
-                    GrLivArea + LotArea +
-                    Neighborhood_Int + #Neighborhood
-                    StreetAlley + RemodSinceBuilt +
-                    LotShape + LandContour +
-                    LandSlope + LotConfig +
-                    IsOnMainroad + IsNearPark +
-                    IsNearRailroad + BsmtQual +
-                    Age + #RoofStyle + 
-                    OverallQual + OverallCond +
-                    ExterQual + #Exterior1st +
-                    BsmtExposure + Rate +
-                    BldgType + #MSZoning +
-                    TotalBsmtSF + #Foundation + 
-                    KitchenQual + #Heating + 
-                    Fireplaces + #GarageFinish +
-                    GarageQual + GarageCond +
-                    GarageCars + KitchenAbvGr +
-                    PavedDrive + EnclosedPorch +
-                    ScreenPorch + #SaleCondition + 
-                    #BsmtFullBath + #HouseStyle + 
-                    #FullBath + #+ CentralAir
-                    AllBathrooms + 
-                    FireplaceQu + Functional + 
-                    TotRmsAbvGrd + BedroomAbvGr +
-                    HeatingQC
-                    
-                    
-                    
-                    
-  ames_backprop = neuralnet(logSalePrice ~
-                    GrLivArea + LotArea +
-                    Neighborhood_Int + Age + 
-                    StreetAlley + RemodSinceBuilt +
-                    LotShape + LandContour +
-                    LandSlope + LotConfig +
-                    IsOnMainroad + IsNearPark +
-                    IsNearRailroad + BsmtQual +
-                    OverallQual + OverallCond +
-                    ExterQual + BsmtExposure + Rate +
-                    TotalBsmtSF +  KitchenQual + 
-                    Fireplaces + GarageQual + 
-                    GarageCond + GarageCars +                      
-                    KitchenAbvGr + PavedDrive + 
-                    EnclosedPorch + ScreenPorch + 
-                    AllBathrooms + FireplaceQu + 
-                    Functional + TotRmsAbvGrd + 
-                    BedroomAbvGr + HeatingQC,
-                  data = train.data, likelihood = TRUE)
-
-pred = predict(ames_backprop, test.data)
-
-pred
-
-
-    #BldgType + #MSZoning +
-                    #Foundation + 
-                   #Heating + 
-                    #GarageFinish +
-#SaleCondition + 
-                    #BsmtFullBath + #HouseStyle + 
-                    #FullBath + #+ CentralAir

@@ -73,7 +73,7 @@ Engineer a custom dataframe with best features:
 
 ```{r}
 
-df_akram = select(df_engineered, c(PID, logSalePrice, GrLivArea, LotArea, Neighborhood_Int, Neighborhood, Age, StreetAlley, RemodSinceBuilt, LotShape, LandContour, LandSlope, LotConfig, IsOnMainroad, IsNearPark, IsNearRailroad, BsmtQual, RoofStyle, OverallQual, OverallCond, ExterQual, Exterior1st, Exterior2nd, BsmtExposure, Rate, BldgType, MSZoning, Foundation, TotalBsmtSF, Heating, KitchenQual, Fireplaces, GarageType, GarageQual, GarageCond, GarageFinish, GarageCars, KitchenAbvGr, PavedDrive, EnclosedPorch, SaleCondition, ScreenPorch, HouseStyle, BsmtFullBath, AllBathrooms, FullBath, FireplaceQu, Functional, TotRmsAbvGrd, BedroomAbvGr, HeatingQC, CentralAir))
+df_akram = select(df_engineered, c(PID, logSalePrice, GrLivArea, LotArea, Neighborhood_Int, Neighborhood, Age, StreetAlley, RemodSinceBuilt, LotShape, LandContour, LandSlope, LotConfig, IsOnMainroad, IsNearPark, IsNearRailroad, BsmtQual, RoofStyle, OverallQual, OverallCond, ExterQual, Exterior1st, Exterior2nd, BsmtExposure, Rate, BldgType, MSZoning, Foundation, TotalBsmtSF, Heating, KitchenQual, Fireplaces, GarageType, GarageQual, GarageCond, GarageFinish, GarageCars, KitchenAbvGr, PavedDrive, EnclosedPorch, SaleCondition, ScreenPorch, HouseStyle, BsmtFullBath, AllBathrooms, FullBath, FireplaceQu, Functional, TotRmsAbvGrd, BedroomAbvGr, HeatingQC, CentralAir, MSZoning_Int))
 
 write.csv(df_akram, "df_Backprop_Engineered.csv")
 
@@ -96,31 +96,52 @@ train_set = df_akram[df_sample, ]
 test_set = df_akram[-df_sample, ]
 
 Linear_Model = lm(logSalePrice ~
-                    GrLivArea + LotArea +
-                    Neighborhood + #Neighborhood_Int + #
-                    StreetAlley + RemodSinceBuilt +
-                    LotShape + LandContour +
-                    LandSlope + LotConfig +
-                    IsOnMainroad + IsNearPark +
-                    IsNearRailroad + BsmtQual +
-                    RoofStyle + Age +
-                    OverallQual + OverallCond +
-                    ExterQual + Exterior1st +
-                    BsmtExposure + Rate +
-                    BldgType + MSZoning +
-                    Foundation + TotalBsmtSF +
-                    Heating + KitchenQual +
-                    Fireplaces + GarageFinish +
-                    GarageQual + GarageCond +
-                    GarageCars + KitchenAbvGr +
-                    PavedDrive + EnclosedPorch +
-                    SaleCondition + ScreenPorch +
-                    HouseStyle + BsmtFullBath +
+                    GrLivArea +
+                    LotArea +
+                    Neighborhood +
+                    Age +
+                    StreetAlley +
+                    RemodSinceBuilt +
+                    LotShape +
+                    LandContour +
+                    LandSlope +
+                    LotConfig +
+                    IsOnMainroad +
+                    IsNearPark +
+                    IsNearRailroad +
+                    BsmtQual +
+                    RoofStyle +
+                    OverallQual +
+                    OverallCond +
+                    ExterQual +
+                    Exterior1st +
+                    BsmtExposure +
+                    Rate +
+                    BldgType +
+                    MSZoning +
+                    Foundation +
+                    TotalBsmtSF +
+                    Heating +
+                    KitchenQual +
+                    Fireplaces +
+                    GarageQual +
+                    GarageCond +
+                    GarageFinish +
+                    GarageCars +
+                    KitchenAbvGr +
+                    PavedDrive +
+                    EnclosedPorch +
+                    SaleCondition +
+                    ScreenPorch +
+                    HouseStyle +
+                    BsmtFullBath +
                     FullBath +
-                    #AllBathrooms + 
-                    FireplaceQu + Functional +
-                    TotRmsAbvGrd + BedroomAbvGr +
-                    HeatingQC + CentralAir,
+                    FireplaceQu +
+                    Functional +
+                    TotRmsAbvGrd +
+                    BedroomAbvGr +
+                    HeatingQC +
+                    CentralAir,
                   data = train_set)
 
 # + MSSubClass + SaleType + RoofMatl
@@ -256,7 +277,7 @@ Elastic_Alpha = Elastic_Model$bestTune$alpha
 
 Elastic_Lambda = Elastic_Model$bestTune$lambda
 
-#coef(Elastic_Model$finalModel, Elastic_Model$bestTune$lambda)
+coef(Elastic_Model$finalModel, Elastic_Model$bestTune$lambda)
 
 # Make predictions on the test data:
 

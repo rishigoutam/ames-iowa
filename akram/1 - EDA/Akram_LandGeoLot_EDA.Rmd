@@ -108,6 +108,9 @@ StreetAlley - 0, 1, 2, 3
 ```{r}
 #df_1 = filter(df_cleaned, Street == "Pave" & Alley == "Pave")
 #df_1
+
+#unique(df_cleaned$MSZoning)
+
 ```
 
 
@@ -352,6 +355,37 @@ df_cleaned$Neighborhood_Int = as.factor(df_cleaned$Neighborhood_Int)
 
 df_cleaned$Neighborhood_Int = factor(df_cleaned$Neighborhood_Int, levels = c(0:27), ordered = TRUE)
 
+#12 Convert CentralAir into an ordered int factor
+
+df_cleaned$CentralAir_temp = as.integer(0)
+
+df_cleaned$CentralAir_temp[df_cleaned$CentralAir == "N"] = as.integer(0)
+df_cleaned$CentralAir_temp[df_cleaned$CentralAir == "Y"] = as.integer(1)
+
+df_cleaned$CentralAir_temp = as.factor(df_cleaned$CentralAir_temp)
+
+df_cleaned$CentralAir_temp = factor(df_cleaned$CentralAir_temp, levels = c(0, 1), ordered = TRUE)
+
+df_cleaned = select(df_cleaned, -CentralAir)
+
+df_cleaned = rename(df_cleaned, CentralAir = CentralAir_temp)
+
+#13 Creation of MSZoning_Int as ordered int factor
+
+df_cleaned$MSZoning_Int = as.integer(0)
+
+df_cleaned$MSZoning_Int[df_cleaned$MSZoning == "A (agr)"] = as.integer(0)
+df_cleaned$MSZoning_Int[df_cleaned$MSZoning == "C (all)"] = as.integer(1)
+df_cleaned$MSZoning_Int[df_cleaned$MSZoning == "I (all)"] = as.integer(2)
+df_cleaned$MSZoning_Int[df_cleaned$MSZoning == "RH"] = as.integer(3)
+df_cleaned$MSZoning_Int[df_cleaned$MSZoning == "FV"] = as.integer(4)
+df_cleaned$MSZoning_Int[df_cleaned$MSZoning == "RM"] = as.integer(5)
+df_cleaned$MSZoning_Int[df_cleaned$MSZoning == "RL"] = as.integer(6)
+
+df_cleaned$MSZoning_Int = as.factor(df_cleaned$MSZoning_Int)
+
+df_cleaned$MSZoning_Int = factor(df_cleaned$MSZoning_Int, levels = c(0:6), ordered = TRUE)
+
 # Relocate columns for tidyness
 
 df_cleaned = df_cleaned %>%
@@ -367,8 +401,10 @@ df_cleaned = df_cleaned %>%
   relocate(StreetAlley, .after = Neighborhood) %>%    
   relocate(RemodSinceBuilt, .after = Neighborhood) %>%   
   relocate(Age, .after = Neighborhood) %>%
-  relocate(Neighborhood_Int, .after = Neighborhood)
-
+  relocate(Neighborhood_Int, .after = Neighborhood) %>%
+  relocate(CentralAir, .after = Neighborhood_Int) %>%
+  relocate(MSZoning_Int, .after = Neighborhood_Int)
+  
 head(df_cleaned)
 
 write.csv(df_cleaned, "df_cleaned.csv")
@@ -392,11 +428,11 @@ Will also merge my other engineered features, and will make changes to the featu
 # Extract subset of columns from df_cleaned for insertion into df_engineered
 
 df_temp = df_cleaned %>%
-  select(PID, DateSold, Rate, logSalePrice, IsOnMainroad, IsNearPark, IsNearRailroad, LotConfig, LandSlope, LandContour, LotShape, StreetAlley, RemodSinceBuilt, Age, Neighborhood_Int)
+  select(PID, DateSold, Rate, logSalePrice, IsOnMainroad, IsNearPark, IsNearRailroad, LotConfig, LandSlope, LandContour, LotShape, StreetAlley, RemodSinceBuilt, Age, Neighborhood_Int, CentralAir, MSZoning_Int)
 
 # Delete unnecessary columns from df_engineered
 
-df_engineered = select(df_engineered, -c(X, YrSold, MoSold, LogSalePrice, LotFrontage, Street, Alley, LotShape, LandContour, Utilities, LotConfig, LandSlope, Condition1, Condition2, YearBuilt, YearRemodAdd, IsNearNegativeCondition, IsNearPositiveCondition))
+df_engineered = select(df_engineered, -c(X, YrSold, MoSold, LogSalePrice, LotFrontage, Street, Alley, LotShape, LandContour, Utilities, LotConfig, LandSlope, Condition1, Condition2, YearBuilt, YearRemodAdd, IsNearNegativeCondition, IsNearPositiveCondition, CentralAir))
 
 # Merge df_temp with df_engineered
 
@@ -418,7 +454,9 @@ df_engineered = df_engineered %>%
   relocate(StreetAlley, .after = Neighborhood) %>%    
   relocate(RemodSinceBuilt, .after = Neighborhood) %>%   
   relocate(Age, .after = Neighborhood) %>%
-  relocate(Neighborhood_Int, .after = Neighborhood)
+  relocate(Neighborhood_Int, .after = Neighborhood) %>%
+  relocate(CentralAir, .after = Neighborhood_Int) %>%
+  relocate(MSZoning_Int, .after = Neighborhood_Int)
   
 df_engineered =  df_engineered %>%
   arrange(ymd(df_engineered$DateSold), SalePrice)
