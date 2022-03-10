@@ -235,7 +235,8 @@ lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts() %>% diff(6) %>%
 
 #_________Upper SARIMA
 set <- upwt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
-d= 2
+set.ts <- upwt %>% ungroup() %>% select(c(date, Price= wAvPrice ,ntile))  %>% as_tsibble(key="ntile",index="date")
+d=2
 DD= 2
 p_max= 3
 q_max=3 
@@ -259,9 +260,57 @@ for(p in 1:p_max){
 #want p-value to be large, we want the residuals to be normal
 #Seems like SARIMA(0,2,2,1,2,0,12) is the best model 
 sarima = arima(x=set, order = c(0,2,2), seasonal = list(order = c(1,2,0), period = per))
-predict = forecast(sarima, h=24, level = 80)
-autoplot(predict) +ylab("Demand (Weighted Price in $ (normalized by %Population))") + labs(title ="Two-Year SARIMA(1,2,2,1,2,1,12) Prediction for Upper Two-Tile Housing Demand") +
-  xlab("Months from Jan 2006")
+predict = forecast(sarima, h=12, level = 80)
+autoplot(predict) +ylab("Demand (Weighted Price in $ (normalized by %Population))") + labs(title ="One-Year SARIMA(1,2,2,1,2,1,12) Prediction for Upper Two-Tile Housing Demand") +
+  xlab("Months from Jan 2006") + ylim(c(-300000,250000))
+
+
+
+  #________________________Train Test Split--
+  #70/30 split, 55*.8=44
+train <- set[1:44] %>% ts()
+test <- set[45:55] %>% ts()
+trueline<- ts(c(train, test),               # Combined time series object
+   start = start(train),
+   frequency = frequency(train))
+
+autoplot(train) 
+d=1
+DD= 1
+p_max= 2
+q_max=2 
+p_s_max=2
+q_s_max= 2
+per= 12
+for(p in 1:p_max){
+  for(q in 1:q_max){
+    for(p_seasonal in 1:p_s_max){
+      for(q_seasonal in 1:q_s_max){
+        if(p+d+q+p_seasonal+DD+q_seasonal<=(p_max+q_max+p_s_max+q_s_max+d+DD)){
+          model<-arima(x=train, order = c((p-1),d,(q-1)), seasonal = list(order=c((p_seasonal-1),DD,(q_seasonal-1)), period=per))
+          pval<-Box.test(model$residuals, lag=log(length(model$residuals)))
+          sse<-sum(model$residuals^2)
+          cat(p-1,d,q-1,p_seasonal-1,DD,q_seasonal-1,per, 'AIC=', model$aic, ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+        }
+      }
+    }
+  }
+}
+
+sarima_train = arima(x=train, order = c(0,1,1), seasonal = list(order = c(0,1,0), period = per))
+pastpredict = forecast(sarima_train, h=length(test), level=80)
+predictline <- ts(c(train, pastpredict$mean),               # Combined time series object
+   start = start(train),
+   frequency = frequency(train)) %>% as_tsibble()
+trueline %>% as_tsibble() %>% ggplot() + geom_line(aes(x=index, y=value, color="r")) +geom_line(aes(x=index, y=predictline$value))
+
+guess<- predictline %>% ts() %>% as.numeric() 
+guess <- guess[56:110]
+true<- trueline %>% ts() %>% as.numeric()
+RMSE = sqrt(sum((guess-true)^2)/length(trueline))
+cor(fitted(sarima_train), train)^2
+cor(pastpredict$mean, test)^2
+
 
 #_________Lower SARIMA
 set <- lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
@@ -289,10 +338,54 @@ for(p in 1:p_max){
 #want p-value to be large, we want the residuals to be normal
 #Seems like SARIMA(0,2,2,0,2,1,12) is the best model 
 sarima = arima(x=set, order = c(0,2,2), seasonal = list(order = c(0,2,1), period = per))
-predict = forecast(sarima, h=24, level = 80)
-autoplot(predict) +ylab("Demand (Weighted Price in $ (normalized by %Population))")  + labs(title ="Two-Year SARIMA(1,2,1,1,2,1,12) Prediction for Lower Two-Tile Housing Demand") +
-  xlab("Months from Jan 2006")
+predict = forecast(sarima, h=12, level = 80)
+autoplot(predict) +ylab("Demand (Weighted Price in $ (normalized by %Population))")  + labs(title ="One-Year SARIMA(1,2,1,1,2,1,12) Prediction for Lower Two-Tile Housing Demand") +
+  xlab("Months from Jan 2006") + ylim(c(-300000,250000))
 
 
 
-#________________________________________Train/Test 
+#________________________Train Test Split--
+#70/30 split, 55*.8=44
+train <- set[1:44] %>% ts()
+test <- set[45:55] %>% ts()
+trueline<- ts(c(train, test),               # Combined time series object
+              start = start(train),
+              frequency = frequency(train))
+
+autoplot(train) 
+d=1
+DD= 1
+p_max= 2
+q_max=2 
+p_s_max=2
+q_s_max= 2
+per= 12
+for(p in 1:p_max){
+  for(q in 1:q_max){
+    for(p_seasonal in 1:p_s_max){
+      for(q_seasonal in 1:q_s_max){
+        if(p+d+q+p_seasonal+DD+q_seasonal<=(p_max+q_max+p_s_max+q_s_max+d+DD)){
+          model<-arima(x=train, order = c((p-1),d,(q-1)), seasonal = list(order=c((p_seasonal-1),DD,(q_seasonal-1)), period=per))
+          pval<-Box.test(model$residuals, lag=log(length(model$residuals)))
+          sse<-sum(model$residuals^2)
+          cat(p-1,d,q-1,p_seasonal-1,DD,q_seasonal-1,per, 'AIC=', model$aic, ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+        }
+      }
+    }
+  }
+}
+
+sarima_train = arima(x=train, order = c(0,1,1), seasonal = list(order = c(0,1,0), period = per))
+pastpredict = forecast(sarima_train, h=length(test), level=80)
+predictline <- ts(c(train, pastpredict$mean),               # Combined time series object
+                  start = start(train),
+                  frequency = frequency(train)) %>% as_tsibble()
+trueline %>% as_tsibble() %>% ggplot() + geom_line(aes(x=index, y=value, color="r")) +geom_line(aes(x=index, y=predictline$value))
+
+guess<- predictline %>% ts() %>% as.numeric() 
+guess <- guess[56:110]
+true<- trueline %>% ts() %>% as.numeric()
+RMSE = sqrt(sum((guess-true)^2)/length(trueline))
+cor(fitted(sarima_train), train)^2
+cor(pastpredict$mean, test)^2
+

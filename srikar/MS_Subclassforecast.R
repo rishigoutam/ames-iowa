@@ -269,6 +269,59 @@ autoplot(predict) +ylab("Average House Price in $)") + labs(title ="One-Year SAR
   xlab("Months from Jan 2006")
 
 
+#___________________________Train Test Split
+train <- set[1:126] %>% ts()
+test <- set[127:157] %>% ts()
+len = 157
+# trueline<- ts(c(train, test),               # Combined time series object
+#               start = start(train),
+#               frequency = frequency(train))
+set <-train
+d= 1
+DD= 1
+p_max= 3
+q_max=3 
+p_s_max=3
+q_s_max= 3
+per= 12
+for(p in 1:p_max){
+  for(q in 1:q_max){
+    for(p_seasonal in 1:p_s_max){
+      for(q_seasonal in 1:q_s_max){
+        if(p+d+q+p_seasonal+DD+q_seasonal<=(p_max+q_max+p_s_max+q_s_max+d+DD)){
+          model<-arima(x=set, order = c((p-1),d,(q-1)), seasonal = list(order=c((p_seasonal-1),DD,(q_seasonal-1)), period=per))
+          pval<-Box.test(model$residuals, lag=log(length(model$residuals)))
+          sse<-sum(model$residuals^2)
+          cat(p-1,d,q-1,p_seasonal-1,DD,q_seasonal-1,per, 'AIC=', model$aic, ' SSE=',sse,' p-VALUE=', pval$p.value,'\n')
+        }
+      }
+    }
+  }
+}
+sarima = arima(x=set, order = c(0,1,2), seasonal = list(order = c(0,1,1), period = per))
+autoplot(train) 
+pastpredict = forecast(sarima, h=length(train), level=80)
+futurpredict = forecast(sarima,h=length(test),level =80)
+predictline <- pastpredict$mean %>% as_tsibble()
+
+ # predictline <- ts(c(train, pastpredict$mean),               # Combined time series object
+ #                  start = start(train),
+ #                   frequency = frequency(train)) %>% as_tsibble()
+# trueline %>% as_tsibble() %>% ggplot() + geom_line(aes(x=index, y=value, color="r")) +geom_line(aes(x=index, y=predictline$value))
+
+guess_past<- pastpredict$mean %>% ts() %>% as.numeric() 
+true_past<- train %>% ts() %>% as.numeric()
+guess_f <- futurpredict$mean %>% ts() %>% as.numeric() 
+true_f <- test %>% ts() %>% as.numeric()
+
+RMSE_past = sqrt(sum((guess_past-true_past)^2)/len)
+RMSE_fut = sqrt(sum((guess_f-true_f)^2)/len)
+cor(guess_past, train)^2
+cor(guess_f,test)^2
+
+cor(fitted(sarima), futurpredict$x)^2
+
+
 
 #_______________________________________SARIMA Traditional
 set <- purav %>% ungroup() %>% filter(Collapse_MSSubClass == "Traditional") %>% select(AvPrice) %>% ts() 
