@@ -33,9 +33,14 @@ data$ntile <- as.factor(data$ntile)
 
 #making a different TS 
 tone <-data %>% group_by(date) %>% count() %>% as_tsibble(index = date) 
-tone %>% autoplot()
+tone %>% ggplot() + geom_line(aes(x=date,y=n))+ 
+  ylab("Number of Houses Sold") +
+  labs(title="Ames Housing Market", subtitle= "Moving towards quantifying housing demand")
 twotone <-data %>% group_by(date, ntile) %>% count() %>% as_tsibble(key = ntile, index = date) 
-twotone %>% autoplot()
+twotone %>% ggplot() +geom_line(aes(x=date, y=n, color=ntile)) + 
+  ylab("Number of Houses Sold") + 
+  labs(title="Upper and Lower Ames Housing Market", subtitle= "Notice in 2008 the trend switches; Recovery occurring in 2010" , color="2-tiles") 
+
 
 data %>% group_by(date) %>% count() %>%  ungroup() %>% select(n) %>% ts() %>% acf2(main="Total Market (#) ACF/PACF")
 data %>% group_by(date, ntile) %>%
@@ -173,53 +178,53 @@ lowt.d %>% Box.test(type="Ljung-Box", lag = log(length(lowt.d))) #p=.013
 
 
 
-#_________________________________________________________________________ARIMA
-#
-
-#Upper Demand
-set <-upwt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
-d =1
-p_max = 2
-q_max = 2
-for(p in 1:p_max){
-  for(q in 1:q_max){
-    if(p+q+d<=(d+q_max+p_max)){
-      model <- arima(set, order=c((p-1),d,(q-1))  ) 
-      pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
-      sse = sum(model$residuals^2)
-      cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
-      
-    }
-  }
-}
-
-#looks like 0,1,1 model is best
-arima = arima(set, order =c(0,1,1))
-predict = forecast(arima,h=12, level=80)
-autoplot(predict, main ="ARIMA(0,1,1) Prediction on Upper Demand", ylab="Average Weighted Demand ($)")
-
-#Lower Demand
-set <-lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
-d =1
-p_max = 2
-q_max = 2
-for(p in 1:p_max){
-  for(q in 1:q_max){
-    if(p+q+d<=(d+q_max+p_max)){
-      model <- arima(set, order=c((p-1),d,(q-1))  ) 
-      pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
-      sse = sum(model$residuals^2)
-      cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
-      
-    }
-  }
-}
-
-#looks like 0,1,1 model is best
-arima = arima(set, order =c(0,1,1))
-predict = forecast(arima,h=12, level=80)
-autoplot(predict, main ="ARIMA(0,1,1) Prediction on Lower Demand", ylab="Average Weighted Demand ($)")
-
+# #_________________________________________________________________________ARIMA
+# #
+# 
+# #Upper Demand
+# set <-upwt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
+# d =1
+# p_max = 2
+# q_max = 2
+# for(p in 1:p_max){
+#   for(q in 1:q_max){
+#     if(p+q+d<=(d+q_max+p_max)){
+#       model <- arima(set, order=c((p-1),d,(q-1))  ) 
+#       pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
+#       sse = sum(model$residuals^2)
+#       cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
+#       
+#     }
+#   }
+# }
+# 
+# #looks like 0,1,1 model is best
+# arima = arima(set, order =c(0,1,1))
+# predict = forecast(arima,h=12, level=80)
+# autoplot(predict, main ="ARIMA(0,1,1) Prediction on Upper Demand", ylab="Average Weighted Demand ($)")
+# 
+# #Lower Demand
+# set <-lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
+# d =1
+# p_max = 2
+# q_max = 2
+# for(p in 1:p_max){
+#   for(q in 1:q_max){
+#     if(p+q+d<=(d+q_max+p_max)){
+#       model <- arima(set, order=c((p-1),d,(q-1))  ) 
+#       pval <-Box.test(model$residuals, lag=log(length(model$residuals)))
+#       sse = sum(model$residuals^2)
+#       cat(p-1,d,q-1,'AIC: ',model$aic, 'SSE: ', sse, 'p-val: ', pval$p.value,"\n")
+#       
+#     }
+#   }
+# }
+# 
+# #looks like 0,1,1 model is best
+# arima = arima(set, order =c(0,1,1))
+# predict = forecast(arima,h=12, level=80)
+# autoplot(predict, main ="ARIMA(0,1,1) Prediction on Lower Demand", ylab="Average Weighted Demand ($)")
+# 
 
 #______________________________________________________________SEASONAL DIFFERENCING
 upwt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()%>% diff(6) %>% diff(6) %>%  autoplot()
@@ -232,11 +237,11 @@ lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts() %>% diff(6) %>%
 set <- upwt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
 d= 2
 DD= 2
-p_max= 2
-q_max=2 
+p_max= 3
+q_max=3 
 p_s_max=2
 q_s_max= 2
-per= 6
+per= 12
 for(p in 1:p_max){
   for(q in 1:q_max){
     for(p_seasonal in 1:p_s_max){
@@ -252,20 +257,21 @@ for(p in 1:p_max){
   }
 }
 #want p-value to be large, we want the residuals to be normal
-#Seems like SARIMA(1,2,1,1,2,1,6) is the best model 
-sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,1), period = per))
+#Seems like SARIMA(0,2,2,1,2,0,12) is the best model 
+sarima = arima(x=set, order = c(0,2,2), seasonal = list(order = c(1,2,0), period = per))
 predict = forecast(sarima, h=24, level = 80)
-autoplot(predict) +ylab("Demand (Weighted Price in $)")
+autoplot(predict) +ylab("Demand (Weighted Price in $ (normalized by %Population))") + labs(title ="Two-Year SARIMA(1,2,2,1,2,1,12) Prediction for Upper Two-Tile Housing Demand") +
+  xlab("Months from Jan 2006")
 
 #_________Lower SARIMA
 set <- lowt %>% ungroup()  %>% select(c(wAvPrice)) %>% unlist()%>% ts()
 d= 2
 DD= 2
-p_max= 2
-q_max=2 
+p_max= 3
+q_max=3 
 p_s_max=2
 q_s_max= 2
-per= 6
+per= 12
 for(p in 1:p_max){
   for(q in 1:q_max){
     for(p_seasonal in 1:p_s_max){
@@ -281,8 +287,12 @@ for(p in 1:p_max){
   }
 }
 #want p-value to be large, we want the residuals to be normal
-#Seems like SARIMA(1,2,1,1,2,1,6) is the best model 
-sarima = arima(x=set, order = c(1,2,1), seasonal = list(order = c(1,2,1), period = per))
+#Seems like SARIMA(0,2,2,0,2,1,12) is the best model 
+sarima = arima(x=set, order = c(0,2,2), seasonal = list(order = c(0,2,1), period = per))
 predict = forecast(sarima, h=24, level = 80)
-autoplot(predict) +ylab("Demand (Weighted Price in $)")
+autoplot(predict) +ylab("Demand (Weighted Price in $ (normalized by %Population))")  + labs(title ="Two-Year SARIMA(1,2,1,1,2,1,12) Prediction for Lower Two-Tile Housing Demand") +
+  xlab("Months from Jan 2006")
 
+
+
+#________________________________________Train/Test 

@@ -1,24 +1,27 @@
 # Ames Iowa House Predictions
-The Ames Housing Regression focuses on accurately predicting house prices in Ames, IA using a dataset of 2580 houses.
-The code is in both jupyter and R notebooks split across teammate's folders. For a full description of the data flow, see bottom of this page.
-We focused on creating multiple predictive models that adhered to assumptions of the model (statistically correct, good use of hyperparamters, etc). 
+The Ames Housing Regression project focuses on accurately predicting house prices in Ames, IA using a dataset of 2580 houses. For a full description of the data flow, see bottom of this page. We focused on creating multiple predictive models that adhered to assumptions of the model (statistically correct, good use of hyper-parameters, etc). 
 
-### Models
-These models include:
+### Outcome
+We created prediction models that would allow listing and selling agents get accurate predictions for a property's sale price in Ames, Iowa. These models could be incorporated into an app where an agent could enter home details and find its value.
+Mispriced homes are often not sold in a timely manner (or leave money on the table for the owner if priced too low), so there is value in having a good price in a property listing.
+
+### Models 
 * Regression
-  * Univariate regression (EDA on importance of features, not for prediction)
+  * Univariate regression (EDA on importance of features, not for prediction of SalePrice)
   * Multiple Linear Regression
   * Elastic-Net
-* SVR
 * Tree-based Models
   * Decision Tree
   * Random Forest
   * Boosting
-* S/ARIMA (EDA on seasonality and investigation of 2008 market crash, not for prediction)
+* SVR
+* Neural Network 
+  * Backpropagation
+* S/ARIMA (EDA on seasonality and investigation of 2008 market crash, predicting average SalePrice)
 
 ### Model Validation and Feature Selection
 For linear regression, we made sure to only add features if they were
-* significant
+* significant (p-values)
 * not multicolinear (did not inflate VIF of another feature)
 * improved the model's accuracy (R<sup>2</sup>) and decreased complexity (AIC/BIC)
 
@@ -28,13 +31,25 @@ We checked residuals' Q-Q plots, distribution (they were normally distributed an
 We added new features from additional data sources:
 * School district for properties
 * Treasury yields by month (as these have impact on home loan prices)
-And also derived some features from the existing dataset (IsPUD, IsNearNegativeCondition, etc)
+And also derived some new features from the existing dataset (IsPUD, IsNearNegativeCondition, etc)
 
 ## Team
-* Rishi Goutam
 * Akram Sadek
 * James Goudreault
+* Rishi Goutam
 * Srikar Pamidi
+
+## Code
+* The code exists in both jupyter and R notebooks split across teammate's folders
+  * `akram` contains linear regression, elastic-net, interest rate, and backpropagation files
+  * `james` contains tree-based and SVR files
+  * `rishi` contains data cleaning, feature engineering, school district generation, and linear regression files
+  * `srikar` contains time series files
+  * All of the above contain EDA as well
+* Data (provided and generated) is in `data`
+* Two helper packages were written to aid with the translating data dictionary terms and selecting features
+  * `data_dict`
+  * `features`
 
 # Project Info
 * [GitHub repo](github.com/rishigoutam/ames-iowa)
@@ -115,8 +130,9 @@ flowchart LR
     subgraph algo [Additional Models]
         direction LR
         decision_tree>Decision Tree]
-        arima>ARIMA]
+        arima>SARIMA]
         svr>SVR]
+        backprop>Neural Net]
         
         decision_tree.->random_forest>Random Forest]
         decision_tree.->boosted>Boosting]
@@ -127,4 +143,5 @@ flowchart LR
     d_e-->decision_tree
     d_e-->arima
     d_e-->svr
+    d_e-->backprop
 ```
