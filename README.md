@@ -1,5 +1,12 @@
 # Ames Iowa House Predictions
-The Ames Housing Regression project focuses on accurately predicting house prices in Ames, IA using a dataset of 2580 houses. For a full description of the data flow, see bottom of this page. We focused on creating multiple predictive models that adhered to assumptions of the model (statistically correct, good use of hyper-parameters, etc). 
+The Ames Housing Regression project focuses on accurately predicting house prices in Ames, IA using a dataset of 2580 houses. For a full description of the data flow, see bottom of this page. 
+We focused on creating multiple predictive models that adhered to assumptions of the model (statistically correct, good use of hyper-parameters, etc).
+Our project aims to create business value for real estate agents at our (fictitious) company, Regression Realty by:
+* Accurately predicting property sale values
+  * Listing agents can thus not overprice a home, leading to long time-on-market for a property or underprice, thus leaving money on the table for their client
+  * Selling agents can steer clients towards underpriced homes and give bidding advice
+* Providing insights that an agent can use to make renovation recommendations to their client (1-unit effects)
+* Market analysis via time series modeling
 
 ### Outcome
 We created prediction models that would allow listing and selling agents get accurate predictions for a property's sale price in Ames, Iowa. These models could be incorporated into an app where an agent could enter home details and find its value.
