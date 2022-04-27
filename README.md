@@ -63,7 +63,6 @@ And also derived some new features from the existing dataset (IsPUD, IsNearNegat
 * [Presentation](https://docs.google.com/presentation/d/14Kt08GkOo-_00dKlXhadOi5QQhlWIdhumd3M6utnex0/)
 
 # Data Pipeline
-NOTE: The below requires `mermaid` to render the markdown flowchart. If not available, you can see the rendered chart in our [git repository](github.com/rishigoutam/ames-iowa)
 
 [//]: # (https://mermaid-js.github.io/mermaid/#/flowchart)
 
